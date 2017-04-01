@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Julia</title>
+    <script src="https://code.jquery.com/jquery-2.0.0.min.js"></script>
+    <link href="../../css/main.css" type="text/css" rel="stylesheet"/>
+</head>
+<body id="fractal_body">
+<canvas id="canvas"></canvas>
+<form>
+    <div>
+        <label for="speedInput">Speed</label>
+        <input class="slider" type="range" min="1" max="10000" id="speedInput" value="10000"/>
+    </div>
+    <!--<div>-->
+        <!--<label for="colorInput">Color</label>-->
+        <!--<input type="color" id="colorInput" value="#ff0000"/>-->
+    <!--</div>-->
+    <!--<div>-->
+        <!--<label for="backgroundColorInput">Background color</label>-->
+        <!--<input type="color" id="backgroundColorInput" value="#000000"/>-->
+    <!--</div>-->
+    <!--<div>-->
+    <!--<label for="cInput">C: <span id="cValue">-0.835</span></label>-->
+    <!--<input class="slider" type="range" min="-1" max="1" id="cInput" value="-0.835" step="0.0001"/>-->
+    <!--</div>-->
+    <!--<div>-->
+    <!--<label for="ciInput">Ci: <span id="ciValue">-0.2321</span></label>-->
+    <!--<input class="slider" type="range" min="-1" max="1" id="ciInput" value="-0.2321" step="0.0001"/>-->
+    <!--</div>-->
+    <div>
+        <label for="scaleInput">Scale: <span id="scaleValue">1</span></label>
+        <input class="slider" type="range" min="0.0001" max="1" id="scaleInput" value="1" step="0.0001"/>
+    </div>
+    <!--<div>-->
+        <!--<label for="opacityInput">Intensity: <span id="opacityValue">0.05</span></label>-->
+        <!--<input class="slider" type="range" min="0.01" max="1" id="opacityInput" value="0.05" step="0.01"/>-->
+    <!--</div>-->
+    <div>
+        <label for="examples">Examples</label>
+        <select name="examples" id="examples">
+        </select>
+    </div>
+    <div>
+        <button id="clearButton">Clear</button>
+    </div>
+    <div>
+        <button id="stopButton">Stop</button>
+    </div>
+    <div>
+        <p>x<sub>n+1</sub> = sin(a * y<sub>n</sub>) + c * cos(a * x<sub>n</sub>)</p>
+        <p>y<sub>n+1</sub> = sin(b * x<sub>n</sub>) + d * cos(b * y<sub>n</sub>)</p>
+    </div>
+    <hr>
+    <div>
+        <p>x<sub>n+1</sub> = sin(<span class="aVar"></span> * y<sub>n</sub>) + <span class="cVar"></span> * cos(<span
+                class="aVar"></span> * x<sub>n</sub>)</p>
+        <p>y<sub>n+1</sub> = sin(<span class="bVar"></span> * x<sub>n</sub>) + <span class="dVar"></span> * cos(<span
+                class="bVar"></span> * y<sub>n</sub>)</p>
+    </div>
+    <div>
+        <a href="index.html">Menu</a>
+    </div>
+</form>
+
+<script>
+    jQuery(document).ready(function () {
+        var sizeX;
+        var sizeY;
+        var centerX;
+        var centerY;
+        var scale;
+        var x;
+        var y;
+        var c;
+        var ci;
+        var speed;
+        var color;
+        var backgroundColor;
+        var stop;
+        var pixels;
+        var percent;
+        var canvas;
+        var ctx;
+        var examples;
+        var opacity;
+
+        init();
+
+        function init() {
+            prepareVariables();
+            setSliders();
+            prepareEvents();
+            requestAnimationFrame(draw);
+        }
+
+        function prepareVariables() {
+            sizeX = $("#canvas").width();
+            sizeX -= $("form").width();
+            $("#canvas").width(sizeX);
+            sizeY = $("#canvas").height();
+            centerX = sizeX / 2;
+            centerY = sizeY / 2;
+            scale = 1;
+            x = 0;
+            y = 0;
+            speed = 10000;
+            color = 0xff0000;
+            backgroundColor = "#ffffff";
+            stop = false;
+            pixels = [];
+            percent = 5 / 100;
+            c = -0.835;
+            ci = -0.2321;
+            examples = [];
+            opacity = 1;
+            prepareExamples();
+            prepareCanvas();
+        }
+
+        function setSliders() {
+            setSlidersValues();
+            setSlidersLabelsValues();
+            setFormulaVariables();
+        }
+
+        function prepareEvents() {
+            $("#speedInput").change(function () {
+                speed = $("#speedInput").val();
+            });
+
+            $("#colorInput").change(function () {
+                var tmp = $("#colorInput").val();
+                tmp = tmp.replace("#", "");
+                tmp = parseInt(tmp, 16);
+                color = tmp;
+            });
+
+            $("#backgroundColorInput").change(function () {
+                backgroundColor = $("#backgroundColorInput").val();
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(0, 0, sizeX, sizeY);
+                x = 0;
+                y = 0;
+            });
+
+            $("#cInput").bind('input', function () {
+                c = $("#cInput").val();
+                $("#cValue").html(c);
+                $(".cVar").html(c);
+            });
+
+            $("#ciInput").bind('input', function () {
+                ci = $("#ciInput").val();
+                $("#ciValue").html(ci);
+                $(".ciVar").html(ci);
+            });
+
+            $("#scaleInput").bind('input', function () {
+                scale = $("#scaleInput").val();
+                $("#scaleValue").html(scale);
+                x = 0;
+                y = 0;
+            });
+
+            $("#opacityInput").bind('input', function () {
+                opacity = $("#opacityInput").val();
+                $("#opacityValue").html(opacity);
+            });
+
+            $("#clearButton").click(function () {
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(0, 0, sizeX, sizeY);
+                x = 0;
+                y = 0;
+                return false;
+            });
+
+            $("#stopButton").click(function () {
+                stop = !stop;
+
+                if (stop) {
+                    $("#stopButton").html("Start");
+                } else {
+                    $("#stopButton").html("Stop");
+                }
+                return false;
+            });
+
+            $("#examples").change(function () {
+                var selectedIndex = $('select[name=examples]').val();
+                if (selectedIndex == -1) {
+                    return;
+                }
+
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(0, 0, sizeX, sizeY);
+                var selectedExample = examples[selectedIndex];
+                c = selectedExample.C;
+                ci = selectedExample.CI;
+                opacity = selectedExample.opacity;
+                x = 0;
+                y = 0;
+
+                setSlidersValues();
+                setSlidersLabelsValues();
+                setFormulaVariables();
+            });
+        }
+
+        function setFormulaVariables() {
+            $(".cVar").html(c);
+            $(".ciVar").html(ci);
+        }
+
+        function setSlidersLabelsValues() {
+            $("#cValue").html(c);
+            $("#ciValue").html(ci);
+            $("#scaleValue").html(scale);
+            $("#opacityValue").html(opacity);
+        }
+
+        function setSlidersValues() {
+            $("#cInput").val(c);
+            $("#ciInput").val(ci);
+            $("#scaleInput").val(scale);
+            $("#opacityInput").val(opacity);
+        }
+
+        function prepareCanvas() {
+            canvas = document.getElementById("canvas");
+            canvas.width = sizeX;
+            canvas.height = sizeY;
+            ctx = canvas.getContext("2d");
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(0, 0, sizeX, sizeY);
+        }
+
+        function draw() {
+            requestAnimationFrame(draw);
+            if (stop || y > sizeY) {
+                return;
+            }
+
+            var zx, zy;
+            var tmp2 = 0.0;
+            var yb = 1.5 * scale + tmp2;
+            var ya = -1.5 * scale + tmp2;
+            var xa = -2.0 * scale + tmp2;
+            var xb = 2.0 * scale + tmp2;
+            var z;
+            for (var i = 0; i < speed; ++i) {
+
+                zy = y * (yb - ya) / sizeY + ya;
+                zx = x * (xb - xa) / sizeX + xa;
+                z = {a: zx, b: zy};
+                var j = 0;
+                while (j < 255) {
+                    if (z.a * z.a + z.b * z.b > 4) {
+                        break;
+                    }
+
+                    var z2 = {a: z.a * z.a - z.b * z.b + c, b: 2 * z.a * z.b + ci};
+                    z = z2;
+                    j++;
+                }
+
+                ctx.fillStyle = "rgba(" + (j % 8) * 32 + "," + (j % 16) * 16 + "," + (j % 32) * 8 + "," + opacity + ")";
+                ctx.fillRect(x, y, 1, 1);
+
+                x+=1;
+                if (x > sizeX) {
+                    x = 0;
+                    y+=1;
+                }
+            }
+        }
+
+        function hex2rgb(hex) {
+            var rgb = [];
+            rgb[0] = (hex >> 16 & 255) / 255;
+            rgb[1] = (hex >> 8 & 255) / 255;
+            rgb[2] = (255 & hex) / 255;
+            return rgb;
+        }
+
+        function prepareExamples() {
+            examples[0] = {
+                name: "1",
+                C: 0.285,
+                CI: 0,
+                opacity: 1
+            };
+            examples[1] = {
+                name: "2",
+                C: 0.285,
+                CI: 0.01,
+                opacity: 1
+            };
+            examples[2] = {
+                name: "3",
+                C: 0.45,
+                CI: 0.1428,
+                opacity: 1
+            };
+            examples[3] = {
+                name: "4",
+                C: -0.70176,
+                CI: -0.3842,
+                opacity: 1
+            };
+            examples[4] = {
+                name: "5",
+                C: -0.835,
+                CI: -0.2321,
+                opacity: 1
+            };
+            examples[5] = {
+                name: "6",
+                C: -0.8,
+                CI: 0.156,
+                opacity: 1
+            };
+            examples[6] = {
+                name: "7",
+                C: -0.7269,
+                CI: 0.1889,
+                opacity: 1
+            };
+            examples[7] = {
+                name: "8",
+                C: 0,
+                CI: -0.8,
+                opacity: 1
+            };
+
+
+            for (var i = 0; i < examples.length; ++i) {
+                $("#examples").append("<option value='" + i + "'>" + examples[i].name + "</option>");
+            }
+        }
+    });
+</script>
+</body>
+</html>

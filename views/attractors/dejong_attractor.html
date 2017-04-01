@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>De Jong Attractor</title>
+    <script src="https://code.jquery.com/jquery-2.0.0.min.js"></script>
+    <link href="../../css/main.css" type="text/css" rel="stylesheet"/>
+</head>
+<body id="fractal_body">
+<canvas id="canvas"></canvas>
+<form>
+    <div>
+        <label for="speedInput">Speed</label>
+        <input class="slider" type="range" min="1" max="3000" id="speedInput" value="1000"/>
+    </div>
+    <div>
+        <label for="colorInput">Color</label>
+        <input type="color" id="colorInput" value="#ff0000"/>
+    </div>
+    <div>
+        <label for="backgroundColorInput">Background color</label>
+        <input type="color" id="backgroundColorInput" value="#000000"/>
+    </div>
+    <div>
+        <label for="aInput">A: <span id="aValue">-1.4</span></label>
+        <input class="slider" type="range" min="-3" max="3" id="aInput" value="-1.4" step="0.1"/>
+    </div>
+    <div>
+        <label for="bInput">B: <span id="bValue">1.6</span></label>
+        <input class="slider" type="range" min="-3" max="3" id="bInput" value="1.6" step="0.1"/>
+    </div>
+    <div>
+        <label for="cInput">C: <span id="cValue">1.0</span></label>
+        <input class="slider" type="range" min="-3" max="3" id="cInput" value="1.0" step="0.1"/>
+    </div>
+    <div>
+        <label for="dInput">D: <span id="dValue">0.7</span></label>
+        <input class="slider" type="range" min="-3" max="3" id="dInput" value="0.7" step="0.1"/>
+    </div>
+    <div>
+        <label for="opacityInput">Intensity: <span id="opacityValue">0.05</span></label>
+        <input class="slider" type="range" min="0.01" max="1" id="opacityInput" value="0.05" step="0.01"/>
+    </div>
+    <div>
+        <label for="examples">Examples</label>
+        <select name="examples" id="examples">
+        </select>
+    </div>
+    <div>
+        <button id="clearButton">Clear</button>
+    </div>
+    <div>
+        <button id="stopButton">Stop</button>
+    </div>
+    <div>
+        <p>x<sub>n+1</sub> = sin(a * y<sub>n</sub>) - cos(b * x<sub>n</sub>)</p>
+        <p>y<sub>n+1</sub> = sin(c * x<sub>n</sub>) - cos(d * y<sub>n</sub>)</p>
+    </div>
+    <hr>
+    <div>
+        <p>x<sub>n+1</sub> = sin(<span class="aVar"></span> * y<sub>n</sub>) - cos(<span class="cVar"></span> * x<sub>n</sub>)</p>
+        <p>y<sub>n+1</sub> = sin(<span class="bVar"></span> * x<sub>n</sub>) - cos(<span class="dVar"></span> * y<sub>n</sub>)</p>
+    </div>
+    <div>
+        <a href="index.html">Menu</a>
+    </div>
+</form>
+</body>
+<script>
+    jQuery(document).ready(function () {
+        var sizeX;
+        var sizeY;
+        var centerX;
+        var centerY;
+        var scale;
+        var x;
+        var y;
+        var a;
+        var b;
+        var c;
+        var d;
+        var speed;
+        var color;
+        var backgroundColor;
+        var stop;
+        var pixels;
+        var percent;
+        var canvas;
+        var ctx;
+        var examples;
+        var opacity;
+
+        init();
+
+        function init() {
+            prepareVariables();
+            setSliders();
+            prepareEvents();
+            clearPixelsArray();
+            requestAnimationFrame(draw);
+        }
+
+        function prepareVariables() {
+            sizeX = $("#canvas").width();
+            sizeX -= $("form").width();
+            $("#canvas").width(sizeX);
+            sizeY = $("#canvas").height();
+            centerX = sizeX / 2;
+            centerY = sizeY / 2;
+            scale = sizeX / 6;
+            x = 0;
+            y = 0;
+            speed = 1000;
+            color = 0xff0000;
+            backgroundColor = "#000000";
+            stop = false;
+            pixels = [];
+            percent = 5 / 100;
+            a = -1.85;
+            b = 1.48;
+            c = -1.55;
+            d = -1.87;
+            examples = [];
+            opacity = 0.05;
+            prepareExamples();
+            prepareCanvas();
+        }
+
+        function setSliders() {
+            setSlidersValues();
+            setSlidersLabelsValues();
+            setFormulaVariables();
+        }
+
+        function prepareEvents() {
+            $("#speedInput").change(function () {
+                speed = $("#speedInput").val();
+            });
+
+            $("#colorInput").change(function () {
+                var tmp = $("#colorInput").val();
+                tmp = tmp.replace("#", "");
+                tmp = parseInt(tmp, 16);
+                color = tmp;
+            });
+
+            $("#backgroundColorInput").change(function () {
+                backgroundColor = $("#backgroundColorInput").val();
+                clearPixelsArray();
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(0, 0, sizeX, sizeY);
+            });
+
+            $("#aInput").bind('input', function () {
+                a = $("#aInput").val();
+                $("#aValue").html(a);
+                $(".aVar").html(a);
+            });
+
+            $("#bInput").bind('input', function () {
+                b = $("#bInput").val();
+                $("#bValue").html(b);
+                $(".bVar").html(b);
+            });
+
+            $("#cInput").bind('input', function () {
+                c = $("#cInput").val();
+                $("#cValue").html(c);
+                $(".cVar").html(c);
+            });
+
+            $("#dInput").bind('input', function () {
+                d = $("#dInput").val();
+                $("#dValue").html(d);
+                $(".dVar").html(d);
+            });
+
+            $("#opacityInput").bind('input', function () {
+                opacity = $("#opacityInput").val();
+                $("#opacityValue").html(opacity);
+            });
+
+            $("#clearButton").click(function () {
+                clearPixelsArray();
+
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(0, 0, sizeX, sizeY);
+                return false;
+            });
+
+            $("#stopButton").click(function () {
+                stop = !stop;
+
+                if (stop) {
+                    $("#stopButton").html("Start");
+                } else {
+                    $("#stopButton").html("Stop");
+                }
+                return false;
+            });
+
+            $("#examples").change(function () {
+                var selectedIndex = $('select[name=examples]').val();
+                if (selectedIndex == -1) {
+                    return;
+                }
+
+                var selectedExample = examples[selectedIndex];
+                a = selectedExample.A;
+                b = selectedExample.B;
+                c = selectedExample.C;
+                d = selectedExample.D;
+                opacity = selectedExample.opacity;
+
+                setSlidersValues();
+                setSlidersLabelsValues();
+                setFormulaVariables();
+            });
+        }
+
+        function setFormulaVariables() {
+            $(".aVar").html(a);
+            $(".bVar").html(b);
+            $(".cVar").html(c);
+            $(".dVar").html(d);
+        }
+
+        function setSlidersLabelsValues() {
+            $("#aValue").html(a);
+            $("#bValue").html(b);
+            $("#cValue").html(c);
+            $("#dValue").html(d);
+            $("#opacityValue").html(opacity);
+        }
+
+        function setSlidersValues() {
+            $("#aInput").val(a);
+            $("#bInput").val(b);
+            $("#cInput").val(c);
+            $("#dInput").val(d);
+            $("#opacityInput").val(opacity);
+        }
+
+        function clearPixelsArray() {
+            for (var i = 0; i < sizeX; ++i) {
+                pixels[i] = [];
+                for (var j = 0; j < sizeY; ++j) {
+                    pixels[i][j] = 0;
+                }
+            }
+        }
+
+        function prepareCanvas() {
+            canvas = document.getElementById("canvas");
+            canvas.width = sizeX;
+            canvas.height = sizeY;
+            ctx = canvas.getContext("2d");
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(0,0, sizeX, sizeY);
+        }
+
+        function draw() {
+            requestAnimationFrame(draw);
+            if (stop) {
+                return;
+            }
+
+            var xn, yn;
+            for (var i = 0; i < speed; ++i) {
+                xn = Math.sin(a * y) - Math.cos(b * x);
+                yn = Math.sin(c * x) - Math.cos(d * y);
+                x = xn;
+                y = yn;
+                var cx = Math.round(centerX + x * scale), cy = Math.round(centerY + y * scale);
+                if(cx < 0 || cy < 0 || cx > sizeX || cy > sizeY) {
+                    continue;
+                }
+
+                var val = pixels[cx][cy];
+                var rgb = hex2rgb(color);
+                rgb[0] -= rgb[0] * val * percent > 0 ? rgb[0] * val * percent : 0;
+                rgb[1] -= rgb[1] * val * percent > 0 ? rgb[1] * val * percent : 0;
+                rgb[2] -= rgb[2] * val * percent > 0 ? rgb[2] * val * percent : 0;
+
+                ctx.fillStyle = "rgba(" + rgb[0] * 255 + "," + rgb[1] * 255 + "," + rgb[2] * 255 + "," + opacity + ")";
+                ctx.fillRect(cx, cy, 1, 1);
+
+                pixels[cx][cy] = pixels[cx][cy] < 20 ? pixels[cx][cy] + 1 : 0;
+            }
+        }
+
+        function hex2rgb(hex) {
+            var rgb = [];
+            rgb[0] = (hex >> 16 & 255) / 255;
+            rgb[1] = (hex >> 8 & 255) / 255;
+            rgb[2] = (255 & hex) / 255;
+            return rgb;
+        }
+
+        function prepareExamples() {
+            examples[0] = {
+                name: "1",
+                A: -1.85,
+                B: 1.48,
+                C: -1.55,
+                D: -1.87,
+                opacity: 0.05
+            };
+            examples[1] = {
+                name: "2",
+                A: 1.4,
+                B: -2.3,
+                C: 2.4,
+                D: -2.1,
+                opacity: 0.05
+            };
+            examples[2] = {
+                name: "3",
+                A: 2.01,
+                B: -2.53,
+                C: 1.61,
+                D: -0.33,
+                opacity: 0.05
+            };
+            examples[3] = {
+                name: "4",
+                A: -2.0,
+                B: -2.0,
+                C: -1.2,
+                D: 2.0,
+                opacity: 0.05
+            };
+
+
+            for (var i = 0; i < examples.length; ++i) {
+                $("#examples").append("<option value='" + i + "'>" + examples[i].name + "</option>");
+            }
+        }
+    });
+</script>
+</html>

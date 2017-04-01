@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sorting</title>
+    <script src="https://code.jquery.com/jquery-2.0.0.min.js"></script>
+    <link href="../../css/main.css" type="text/css" rel="stylesheet"/>
+</head>
+<body id="fractal_body">
+<canvas id="canvas"></canvas>
+<form>
+    <div>
+        <label for="speedInput">Speed</label>
+        <input class="slider" type="range" min="1" max="300" id="speedInput" value="10"/>
+    </div>
+    <div>
+        <label for="lengthInput">Length</label>
+        <input class="slider" type="range" min="1" max="100" id="lengthInput" value="10"/>
+    </div>
+    <div>
+        <label for="colorInput">Color</label>
+        <input type="color" id="colorInput" value="#00ff00"/>
+    </div>
+    <div>
+        <label for="opacityInput">Intensity: <span id="opacityValue">0.05</span></label>
+        <input class="slider" type="range" min="0.01" max="1" id="opacityInput" value="0.05" step="0.01"/>
+    </div>
+    <div>
+        <button id="clearButton">Clear</button>
+    </div>
+    <div>
+        <a href="index.html">Menu</a>
+    </div>
+</form>
+</body>
+<script>
+    jQuery(document).ready(function () {
+        var sizeX;
+        var sizeY;
+        var centerX;
+        var centerY;
+        var scale;
+        var x;
+        var y;
+        var a;
+        var b;
+        var c;
+        var d;
+        var p;
+        var speed;
+        var color;
+        var backgroundColor;
+        var stop;
+        var pixels;
+        var percent;
+        var canvas;
+        var ctx;
+        var examples;
+        var opacity;
+        var visited;
+        var dfsStack;
+        var moves;
+        var moveLength;
+        var iter;
+        var remaining;
+        var array;
+        var it1;
+        var it2;
+        var width;
+        var height;
+
+        init();
+
+        function init() {
+            prepareVariables();
+            setSliders();
+            prepareEvents();
+            clearPixelsArray();
+            requestAnimationFrame(draw);
+        }
+
+        function prepareVariables() {
+            sizeX = $("#canvas").width();
+            sizeX -= $("form").width();
+            $("#canvas").width(sizeX);
+            sizeY = $("#canvas").height();
+
+//            sizeX = 20;
+//            sizeY = 20;
+
+            remaining = sizeX * sizeY;
+
+            centerX = sizeX / 2;
+            centerY = sizeY / 2;
+            scale = 5;
+            x = 0;
+            y = 0;
+            speed = 1;
+            color = 0x00ff00;
+            backgroundColor = "#000000";
+            stop = false;
+            pixels = [];
+            percent = 5 / 100;
+            opacity = 0.05;
+            examples = [];
+            visited = [];
+            dfsStack = [];
+            dfsStack.push({x: 0, y: 0, fromX: 0, fromY: 0, distance: 0});
+            moves = [{x: -1, y: 0}, {x: 1, y: 0}, {x: 0, y: -1}, {x: 0, y: 1}];
+            moveLength = 1;
+            iter = 0;
+            array = [];
+            it1 = 0;
+            it2 = 0;
+            prepareVisited();
+            prepareExamples();
+            prepareCanvas();
+            prepareArray();
+
+            width = Math.round((sizeX) / array.length);
+            height = (sizeY / 2) / (sizeY / 4);
+
+            showArray();
+        }
+
+        function prepareArray() {
+            var max = sizeY / 4;
+            var count = 100;
+            for (let i = 0; i < count; ++i) {
+                array.push(Math.round(Math.random() * max));
+            }
+        }
+
+        function showArray() {
+            x = 0;
+            y = 2 * sizeY / 3;
+            ctx.fillStyle = "rgba(0,255,0,1)";
+            for (let i = 0; i < array.length; ++i) {
+                ctx.fillRect(width * i, y - (array[i] * height), width, array[i] * height);
+//                ctx.fillRect(width * i, y - (array[i] * height), width, array[i] * height);
+//                x += width;
+            }
+        }
+
+        function prepareVisited() {
+            for (let i = 0; i <= sizeX; ++i) {
+                visited[i] = [];
+            }
+        }
+
+        function setSliders() {
+            setSlidersValues();
+            setSlidersLabelsValues();
+            setFormulaVariables();
+        }
+
+        function setSlidersValues() {
+            $("#opacityInput").val(opacity);
+        }
+
+        function setSlidersLabelsValues() {
+            $("#opacityValue").html(opacity);
+        }
+
+        function setFormulaVariables() {
+        }
+
+        function prepareEvents() {
+            $("#speedInput").change(function () {
+                speed = $("#speedInput").val();
+            });
+
+            $("#lengthInput").change(function () {
+                moveLength = $("#lengthInput").val();
+            });
+
+            $("#colorInput").change(function () {
+                var tmp = $("#colorInput").val();
+                tmp = tmp.replace("#", "");
+                tmp = parseInt(tmp, 16);
+                color = tmp;
+            });
+
+            $("#backgroundColorInput").change(function () {
+                backgroundColor = $("#backgroundColorInput").val();
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(0, 0, sizeX, sizeY);
+            });
+
+            $("#opacityInput").bind('input', function () {
+                opacity = $("#opacityInput").val();
+                $("#opacityValue").html(opacity);
+            });
+
+            $("#clearButton").click(function () {
+                stop = true;
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(0, 0, sizeX, sizeY);
+                dfsStack = [];
+                dfsStack.push({x: 0, y: 0, fromX: 0, fromY: 0, distance: 0});
+                prepareVisited();
+                stop = false;
+                return false;
+            });
+
+            $("#stopButton").click(function () {
+                stop = !stop;
+
+                if (stop) {
+                    $("#stopButton").html("Start");
+                } else {
+                    $("#stopButton").html("Stop");
+                }
+                return false;
+            });
+
+            $("#examples").change(function () {
+                var selectedIndex = $('select[name=examples]').val();
+                if (selectedIndex == -1) {
+                    return;
+                }
+
+                var selectedExample = examples[selectedIndex];
+
+                opacity = selectedExample.opacity;
+                setSlidersValues();
+                setSlidersLabelsValues();
+                setFormulaVariables();
+            });
+        }
+
+        function clearPixelsArray() {
+            for (var i = 0; i <= sizeX; ++i) {
+                pixels[i] = [];
+                for (var j = 0; j <= sizeY; ++j) {
+                    pixels[i][j] = 0;
+                }
+            }
+        }
+
+        function prepareCanvas() {
+            canvas = document.getElementById("canvas");
+            canvas.width = sizeX;
+            canvas.height = sizeY;
+            ctx = canvas.getContext("2d");
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(0, 0, sizeX, sizeY);
+        }
+
+        function sgn(a) {
+            if (a < 0) {
+                return -1;
+            } else {
+                return 1;
+            }
+        }
+
+        function draw() {
+            requestAnimationFrame(draw);
+            if (stop || it1 >= array.length) {
+                return;
+            }
+
+            var xn, yn;
+            var rgb = hex2rgb(color);
+
+            for (let i = 0; i < speed; ++i) {
+//                bubble_sort();
+//                selection_sort();
+                insertion_sort();
+            }
+        }
+
+        function insertion_sort() {
+            if (it2 == 0) {
+                it1++;
+                it2 = it1;
+                return;
+            }
+
+            if(array[it2] > array[it2-1]) {
+                swap(it2, it2-1);
+                it2--;
+            } else {
+                it1++;
+                it2 = it1;
+            }
+        }
+
+        function selection_sort() {
+            let max_i = it1;
+            for (let i = it1 + 1; i < array.length; i++) {
+                if (array[i] > array[max_i]) {
+                    max_i = i;
+                }
+            }
+
+            swap(it1, max_i);
+            it1++;
+        }
+
+        function bubble_sort() {
+            if (it2 >= array.length - it1 - 2) {
+                it2 = 0;
+                it1++;
+            }
+
+            if (it1 >= array.length) {
+                return;
+            }
+
+            if (array[it2] < array[it2 + 1]) {
+                swap(it2, it2 + 1);
+            }
+
+            it2++;
+        }
+
+        function swap(i, j) {
+            let tmp = array[i];
+            array[i] = array[j];
+            array[j] = tmp;
+
+            let max = array[i];
+            if (array[j] > max) {
+                max = array[j];
+            }
+
+//            ctx.fillRect(x, y - (array[i] * height), width, array[i] * height);
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(width * i, y - (max * height), width, max * height);
+            ctx.fillRect(width * j, y - (max * height), width, max * height);
+
+            ctx.fillStyle = "rgba(0,255,0,1)";
+            ctx.fillRect(width * i, y - (array[i] * height), width, array[i] * height);
+            ctx.fillRect(width * j, y - (array[j] * height), width, array[j] * height);
+        }
+
+        function hex2rgb(hex) {
+            var rgb = [];
+            rgb[0] = (hex >> 16 & 255) / 255;
+            rgb[1] = (hex >> 8 & 255) / 255;
+            rgb[2] = (255 & hex) / 255;
+            return rgb;
+        }
+
+        function prepareExamples() {
+
+
+            for (var i = 0; i < examples.length; ++i) {
+                $("#examples").append("<option value='" + i + "'>" + examples[i].name + "</option>");
+            }
+        }
+    });
+</script>
+</html>

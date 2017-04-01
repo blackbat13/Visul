@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sorting</title>
+    <script src="https://code.jquery.com/jquery-2.0.0.min.js"></script>
+    <link href="../../css/main.css" type="text/css" rel="stylesheet"/>
+</head>
+<body id="fractal_body">
+<canvas id="canvas"></canvas>
+<form>
+    <div>
+        <label for="speedInput">Speed</label>
+        <input class="slider" type="range" min="1" max="300" id="speedInput" value="10"/>
+    </div>
+    <div>
+        <label for="lengthInput">Length</label>
+        <input class="slider" type="range" min="1" max="100" id="lengthInput" value="10"/>
+    </div>
+    <div>
+        <label for="colorInput">Color</label>
+        <input type="color" id="colorInput" value="#00ff00"/>
+    </div>
+    <div>
+        <label for="opacityInput">Intensity: <span id="opacityValue">0.05</span></label>
+        <input class="slider" type="range" min="0.01" max="1" id="opacityInput" value="0.05" step="0.01"/>
+    </div>
+    <div>
+        <button id="clearButton">Clear</button>
+    </div>
+    <div>
+        <a href="index.html">Menu</a>
+    </div>
+</form>
+</body>
+<script>
+    jQuery(document).ready(function () {
+        var sizeX;
+        var sizeY;
+        var centerX;
+        var centerY;
+        var scale;
+        var x;
+        var y;
+        var a;
+        var b;
+        var c;
+        var d;
+        var p;
+        var speed;
+        var color;
+        var backgroundColor;
+        var stop;
+        var pixels;
+        var percent;
+        var canvas;
+        var ctx;
+        var examples;
+        var opacity;
+        var visited;
+        var dfsStack;
+        var moves;
+        var moveLength;
+        var iter;
+        var remaining;
+
+        init();
+
+        function init() {
+            prepareVariables();
+            setSliders();
+            prepareEvents();
+            clearPixelsArray();
+            requestAnimationFrame(draw);
+        }
+
+        function prepareVariables() {
+            sizeX = $("#canvas").width();
+            sizeX -= $("form").width();
+            $("#canvas").width(sizeX);
+            sizeY = $("#canvas").height();
+
+//            sizeX = 20;
+//            sizeY = 20;
+
+            remaining = sizeX*sizeY;
+
+            centerX = sizeX / 2;
+            centerY = sizeY / 2;
+            scale = 5;
+            x = 0;
+            y = 0;
+            speed = 10;
+            color = 0x00ff00;
+            backgroundColor = "#000000";
+            stop = false;
+            pixels = [];
+            percent = 5 / 100;
+            opacity = 0.05;
+            examples = [];
+            visited = [];
+            dfsStack = [];
+            dfsStack.push({x: 0, y: 0, fromX: 0, fromY: 0, distance: 0});
+            moves = [{x: -1, y: 0}, {x: 1, y: 0}, {x: 0, y: -1}, {x: 0, y: 1}];
+            moveLength = 1;
+            iter=0;
+            prepareVisited();
+            prepareExamples();
+            prepareCanvas();
+            loadImage();
+//            sortImage();
+        }
+
+        function loadImage() {
+            var img1 = new Image();
+
+            img1.onload = function () {
+                ctx.drawImage(img1, 0, 0);
+//                sortImage();
+            };
+
+//            img1.src = 'colorfull.png';
+            img1.src = 'panorama.jpg';
+        }
+
+        function sortImage() {
+            var pixels = [];
+            var size = 100;
+            for(let i = 0; i < size; i++) {
+                for(let j = 0; j < size; j++) {
+                    var p = ctx.getImageData(i, j, 1, 1).data;
+//                    console.log(p);
+                    pixels.push({r: p[0], g: p[1], b: p[2], x: i, y: j})
+                }
+            }
+
+            for(let i = 0; i < pixels.length; i++) {
+                for(let j = 0; j < pixels.length - i - 1; j++) {
+                    if(pixels[j].r+pixels[j].g+pixels[j].b < pixels[j+1].r+pixels[j+1].g+pixels[j+1].b) {
+                        let tmp = pixels[j];
+                        pixels[j] = pixels[j+1];
+                        pixels[j+1] = tmp;
+                    }
+                }
+            }
+
+            var x = 0;
+            var y = 0;
+            for(let i = 0; i < pixels.length; i++) {
+                console.log(pixels[i]);
+                ctx.fillStyle = "rgba(" + pixels[i].r + ", " + pixels[i].g + ", " + pixels[i].b + ", 1)";
+                ctx.fillRect(x, y, 1, 1);
+                x++;
+                if(x >= size) {
+                    x = 0;
+                    y++;
+                }
+            }
+        }
+
+        function prepareVisited() {
+            for (let i = 0; i <= sizeX; ++i) {
+                visited[i] = [];
+            }
+        }
+
+        function setSliders() {
+            setSlidersValues();
+            setSlidersLabelsValues();
+            setFormulaVariables();
+        }
+
+        function setSlidersValues() {
+            $("#opacityInput").val(opacity);
+        }
+
+        function setSlidersLabelsValues() {
+            $("#opacityValue").html(opacity);
+        }
+
+        function setFormulaVariables() {
+        }
+
+        function prepareEvents() {
+            $("#speedInput").change(function () {
+                speed = $("#speedInput").val();
+            });
+
+            $("#lengthInput").change(function () {
+                moveLength = $("#lengthInput").val();
+            });
+
+            $("#colorInput").change(function () {
+                var tmp = $("#colorInput").val();
+                tmp = tmp.replace("#", "");
+                tmp = parseInt(tmp, 16);
+                color = tmp;
+            });
+
+            $("#backgroundColorInput").change(function () {
+                backgroundColor = $("#backgroundColorInput").val();
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(0, 0, sizeX, sizeY);
+            });
+
+            $("#opacityInput").bind('input', function () {
+                opacity = $("#opacityInput").val();
+                $("#opacityValue").html(opacity);
+            });
+
+            $("#clearButton").click(function () {
+                stop = true;
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(0, 0, sizeX, sizeY);
+                dfsStack = [];
+                dfsStack.push({x: 0, y: 0, fromX: 0, fromY: 0, distance: 0});
+                prepareVisited();
+                stop = false;
+                return false;
+            });
+
+            $("#stopButton").click(function () {
+                stop = !stop;
+
+                if (stop) {
+                    $("#stopButton").html("Start");
+                } else {
+                    $("#stopButton").html("Stop");
+                }
+                return false;
+            });
+
+            $("#examples").change(function () {
+                var selectedIndex = $('select[name=examples]').val();
+                if (selectedIndex == -1) {
+                    return;
+                }
+
+                var selectedExample = examples[selectedIndex];
+
+                opacity = selectedExample.opacity;
+                setSlidersValues();
+                setSlidersLabelsValues();
+                setFormulaVariables();
+            });
+        }
+
+        function clearPixelsArray() {
+            for (var i = 0; i <= sizeX; ++i) {
+                pixels[i] = [];
+                for (var j = 0; j <= sizeY; ++j) {
+                    pixels[i][j] = 0;
+                }
+            }
+        }
+
+        function prepareCanvas() {
+            canvas = document.getElementById("canvas");
+            canvas.width = sizeX;
+            canvas.height = sizeY;
+            ctx = canvas.getContext("2d");
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(0, 0, sizeX, sizeY);
+        }
+
+        function sgn(a) {
+            if (a < 0) {
+                return -1;
+            } else {
+                return 1;
+            }
+        }
+
+        function draw() {
+            requestAnimationFrame(draw);
+            if (stop || dfsStack.length == 0) {
+                return;
+            }
+
+            var xn, yn;
+            var rgb = hex2rgb(color);
+
+            for (var i = 0; i < speed; ++i) {
+                if(iter >= remaining - 1) {
+                    iter = 0;
+                    remaining--;
+                }
+
+                y = Math.round(iter/sizeY);
+                x = iter%sizeY;
+
+                yn = Math.round((iter+1)/sizeY);
+                xn = (iter+1)%sizeY;
+
+//                console.log(x,y);
+
+                var c1 = ctx.getImageData(x,y,1,1).data;
+                var c2 = ctx.getImageData(xn,yn,1,1).data;
+//                console.log(c1);
+//                if(c1[0] + c1[1] + c1[2] < c2[0] + c2[1] + c2[2]) {
+                if(c1[0] < c2[0]) {
+                    ctx.fillStyle = "rgba(" + c1[0] + ", " + c1[1] + ", " + c1[2] + ", 1)";
+                    ctx.fillRect(xn, yn, 1, 1);
+                    ctx.fillStyle = "rgba(" + c2[0] + ", " + c2[1] + ", " + c2[2] + ", 1)";
+                    ctx.fillRect(x, y, 1, 1);
+                }
+
+                iter++;
+            }
+        }
+
+        function hex2rgb(hex) {
+            var rgb = [];
+            rgb[0] = (hex >> 16 & 255) / 255;
+            rgb[1] = (hex >> 8 & 255) / 255;
+            rgb[2] = (255 & hex) / 255;
+            return rgb;
+        }
+
+        function prepareExamples() {
+
+
+            for (var i = 0; i < examples.length; ++i) {
+                $("#examples").append("<option value='" + i + "'>" + examples[i].name + "</option>");
+            }
+        }
+    });
+</script>
+</html>
