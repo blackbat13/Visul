@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Random Line</title>
     <script src="https://code.jquery.com/jquery-2.0.0.min.js"></script>
+    <script src="https://js.leapmotion.com/leap-0.6.3.js"></script>
     <link href="../../css/main.css" type="text/css" rel="stylesheet"/>
 </head>
 <body id="fractal_body">
@@ -298,6 +299,62 @@
 
         }
 
+        var controllerOptions = {};
+        var center;
+        var radius = 20;
+
+        Leap.loop(controllerOptions, function(frame) {
+            var pointableString = "";
+            if (frame.pointables.length > 0) {
+                var i = 0;
+//                for (var i = 0; i < frame.pointables.length; i++) {
+                    var pointable = frame.pointables[i];
+
+                    var appWidth = sizeX;
+                    var appHeight = sizeY;
+
+                    var iBox = frame.interactionBox;
+
+                    var leapPoint = pointable.stabilizedTipPosition;
+                    var normalizedPoint = iBox.normalizePoint(leapPoint, true);
+
+                    var appX = normalizedPoint[0] * appWidth;
+                    var appY = (1 - normalizedPoint[1]) * appHeight;
+
+
+                    if(!mouseDown) {
+                        mouseDown = true;
+                        x = appX;
+                        y = appY;
+                        points = [{x: x, y: y}];
+                        minPoint = {x: x - 50, y: y - 50};
+                        maxPoint = {x: x + 50, y: y + 50};
+                        center = {x: x, y: y};
+
+                    } else {
+                        x = appX;
+                        y = appY;
+                        minPoint = {x: x - 50, y: y - 50};
+                        maxPoint = {x: x + 50, y: y + 50};
+                        center = {x: x, y: y};
+                    }
+//                    pointableString += "Pointable ID: " + pointable.id + "<br />";
+//                    pointableString += "Belongs to hand with ID: " + pointable.handId + "<br />";
+//                    pointableString += "Length: " + pointable.length.toFixed(1) + " mm<br />";
+//                    pointableString += "Width: "  + pointable.width.toFixed(1) + " mm<br />";
+//                    pointableString += "Direction: " + vectorToString(pointable.direction, 2) + "<br />";
+//                    pointableString += "Tip position: " + vectorToString(pointable.tipPosition) + " mm<br />";
+//                    pointableString += "Tip velocity: " + vectorToString(pointable.tipVelocity) + " mm/s<br />";
+//                }
+            } else {
+                mouseDown = false;
+            }
+        });
+
+        function distance(x1, y1, x2, y2) {
+            return Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+        }
+
         function draw() {
             requestAnimationFrame(draw);
             if (stop || !mouseDown) {
@@ -314,7 +371,11 @@
             for (var i = 0; i < speed; ++i) {
                 xn = x + values[Math.round(Math.random() * (values.length - 1))];
                 yn = y + values[Math.round(Math.random() * (values.length - 1))];
-                if (xn < minPoint.x || yn < minPoint.y || xn > maxPoint.x || yn > maxPoint.y) {
+//                if (xn < minPoint.x || yn < minPoint.y || xn > maxPoint.x || yn > maxPoint.y) {
+//                    continue;
+//                }
+
+                if(distance(xn, yn, center.x, center. y) > radius + Math.random() * 20) {
                     continue;
                 }
 
