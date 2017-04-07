@@ -18,35 +18,42 @@ class Attractor {
     }
 
     prepareVariables() {
-        this.examples = [];
         this.sizeX = this.$canvas.width();
         this.sizeX -= $("form").width();
         this.$canvas.width(this.sizeX);
         this.sizeY = this.$canvas.height();
         this.centerX = this.sizeX / 2;
         this.centerY = this.sizeY / 2;
-        this.x = 0;
-        this.y = 0;
         this.speed = 1000;
-        this.color = 0xff0000;
-        this.backgroundColor = "#000000";
         this.stop = false;
         this.pixels = [];
         this.percent = 5 / 100;
         this.values = [];
         this.examples = [];
         this.opacity = 0.05;
-        this.setScale();
-        this.setBeginningValues();
+        this.prepareCoordinates();
+        this.prepareColors();
+        this.prepareScale();
+        this.prepareBeginningValues();
         this.prepareExamples();
         this.prepareCanvas();
     }
 
-    setScale() {
+    prepareCoordinates() {
+        this.x = 0;
+        this.y = 0;
+    }
+
+    prepareColors() {
+        this.color = 0xff0000;
+        this.backgroundColor = "#000000";
+    }
+
+    prepareScale() {
         console.log("Not implemented");
     }
 
-    setBeginningValues() {
+    prepareBeginningValues() {
         console.log("Not implemented");
     }
 
@@ -81,8 +88,7 @@ class Attractor {
                 this.values[i] = $("#" + valueName + "Input").val();
                 $("#" + valueName + "Value").html(this.values[i]);
                 $("." + valueName + "Var").html(this.values[i]);
-                this.x = 0;
-                this.y = 0;
+                this.setBeginningCoordinates();
             }, this));
         }
 
@@ -94,8 +100,7 @@ class Attractor {
         $("#clearButton").click($.proxy(function () {
             this.clearPixelsArray();
             this.clearCanvas();
-            this.x = 0;
-            this.y = 0;
+            this.setBeginningCoordinates();
             return false;
         }, this));
 
@@ -125,6 +130,11 @@ class Attractor {
             this.setSlidersLabelsValues();
             this.setFormulaVariables();
         }, this));
+    }
+
+    setBeginningCoordinates() {
+        this.x = 0;
+        this.y = 0;
     }
 
     setFormulaVariables() {

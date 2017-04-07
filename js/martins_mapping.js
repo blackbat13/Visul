@@ -7,12 +7,17 @@ class MartinsMapping extends Attractor {
         super(canvasId, ["a", "b", "c", "d", "p"]);
     }
 
-    setBeginningValues() {
+    prepareBeginningValues() {
         this.values = [-2.7, 0.6, -1.0, 1.0, 0.5];
     }
 
-    setScale() {
+    prepareScale() {
         this.scale = 5;
+    }
+
+    prepareColors() {
+        this.color = 0x00ff00;
+        this.backgroundColor = "#000000";
     }
 
     draw() {

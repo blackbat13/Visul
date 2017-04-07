@@ -6,11 +6,11 @@ class CliffordAttractor extends Attractor {
         super(canvasId, ["a", "b", "c", "d"]);
     }
 
-    setBeginningValues() {
+    prepareBeginningValues() {
         this.values = [-1.4, 1.6, 1.0, 0.7];
     }
 
-    setScale() {
+    prepareScale() {
         this.scale = this.sizeX / 6;
     }
 

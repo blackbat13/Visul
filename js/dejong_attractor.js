@@ -6,11 +6,11 @@ class DejongAttractor extends Attractor {
         super(canvasId, ["a", "b", "c", "d"]);
     }
 
-    setBeginningValues() {
+    prepareBeginningValues() {
         this.values = [-1.85, 1.48, -1.55, -1.87];
     }
 
-    setScale() {
+    prepareScale() {
         this.scale = this.sizeX / 6;
     }
 
