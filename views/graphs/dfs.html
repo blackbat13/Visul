@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Martins Mapping</title>
-    <script src="https://code.jquery.com/jquery-2.0.0.min.js"></script>
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+    <script src="../../js/jquery-3.2.1.min.js"></script>
+    <script>if (window.module) module = window.module;</script>
     <link href="../../css/main.css" type="text/css" rel="stylesheet"/>
 </head>
 <body id="fractal_body">
@@ -11,7 +13,7 @@
 <form>
     <div>
         <label for="speedInput">Speed</label>
-        <input class="slider" type="range" min="1" max="250" id="speedInput" value="10"/>
+        <input class="slider" type="range" min="2" max="100" id="speedInput" value="10"/>
     </div>
     <div>
         <label for="lengthInput">Length</label>
