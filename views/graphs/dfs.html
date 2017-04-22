@@ -28,6 +28,10 @@
         <input class="slider" type="range" min="0.01" max="1" id="opacityInput" value="0.05" step="0.01"/>
     </div>
     <div>
+        <label for="changeColorInput">Change color</label>
+        <input type="checkbox" id="changeColorInput" />
+    </div>
+    <div>
         <button id="clearButton">Clear</button>
     </div>
     <div>
@@ -63,6 +67,10 @@
         var dfsStack;
         var moves;
         var moveLength;
+        var colorsArray;
+        var colorIndex;
+        var changeColor = false;
+        var colorChangeCount = 0;
 
         init();
 
@@ -96,11 +104,19 @@
             dfsStack = [];
             dfsStack.push({x: 0, y: 0, fromX: 0, fromY: 0, distance: 0});
             moves = [{x: -1, y: 0}, {x: 1, y: 0}, {x: 0, y: -1}, {x: 0, y: 1}];
+            colorsArray = [0xff0000, 0x00ff00, 0x0000ff, 0xb00b00,  0xde1e7e, 0xe1e100, 0xBADA55, 0xF0FEAF, 0xac1d1c, 0xfacade, 0xc2e9fb, 0x96e6a1, 0xf68084, 0xfee140, 0x3cba92];
+            colorIndex = -1;
 //            moves = [{x: -1, y: -1}, {x: -1, y: 1}, {x: 1, y: 1}, {x: 1, y: -1}];
             moveLength = 15;
             prepareVisited();
             prepareExamples();
             prepareCanvas();
+        }
+
+        function getNextColor() {
+            colorIndex++;
+            colorIndex %= colorsArray.length;
+            return colorsArray[colorIndex];
         }
 
         function prepareVisited() {
@@ -146,6 +162,16 @@
                 backgroundColor = $("#backgroundColorInput").val();
                 ctx.fillStyle = backgroundColor;
                 ctx.fillRect(0, 0, sizeX, sizeY);
+            });
+
+            $("#changeColorInput").change(function() {
+                changeColor = !changeColor;
+                if(!changeColor) {
+                    var tmp = $("#colorInput").val();
+                    tmp = tmp.replace("#", "");
+                    tmp = parseInt(tmp, 16);
+                    color = tmp;
+                }
             });
 
             $("#opacityInput").bind('input', function () {
@@ -220,6 +246,12 @@
             requestAnimationFrame(draw);
             if (stop || dfsStack.length == 0) {
                 return;
+            }
+
+            colorChangeCount++;
+            if(colorChangeCount > 50 && changeColor) {
+                colorChangeCount = 0;
+                color = getNextColor();
             }
 
             var xn, yn;
