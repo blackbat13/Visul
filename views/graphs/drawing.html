@@ -14,7 +14,7 @@
 <form>
     <div>
         <label for="speedInput">Speed</label>
-        <input class="slider" type="range" min="1" max="300" id="speedInput" value="1"/>
+        <input class="slider" type="range" min="1" max="300" id="speedInput" value="100"/>
     </div>
     <div>
         <label for="colorInput">Color</label>
@@ -24,47 +24,16 @@
         <label for="backgroundColorInput">Background color</label>
         <input type="color" id="backgroundColorInput" value="#000000"/>
     </div>
-    <div>
-        <label for="aInput">A: <span id="aValue">-1.4</span></label>
-        <input class="slider" type="range" min="-2" max="2" id="aInput" value="-1.4" step="0.1"/>
-    </div>
-    <div>
-        <label for="bInput">B: <span id="bValue">1.6</span></label>
-        <input class="slider" type="range" min="-2" max="2" id="bInput" value="1.6" step="0.1"/>
-    </div>
-    <div>
-        <label for="cInput">C: <span id="cValue">1.0</span></label>
-        <input class="slider" type="range" min="-2" max="2" id="cInput" value="1.0" step="0.1"/>
-    </div>
-    <div>
-        <label for="dInput">D: <span id="dValue">0.7</span></label>
-        <input class="slider" type="range" min="-2" max="2" id="dInput" value="0.7" step="0.1"/>
-    </div>
+
     <div>
         <label for="opacityInput">Intensity: <span id="opacityValue">0.05</span></label>
         <input class="slider" type="range" min="0.01" max="1" id="opacityInput" value="0.05" step="0.01"/>
-    </div>
-    <div>
-        <label for="examples">Examples</label>
-        <select name="examples" id="examples">
-        </select>
     </div>
     <div>
         <button id="clearButton">Clear</button>
     </div>
     <div>
         <button id="stopButton">Stop</button>
-    </div>
-    <div>
-        <p>x<sub>n+1</sub> = sin(a * y<sub>n</sub>) + c * cos(a * x<sub>n</sub>)</p>
-        <p>y<sub>n+1</sub> = sin(b * x<sub>n</sub>) + d * cos(b * y<sub>n</sub>)</p>
-    </div>
-    <hr>
-    <div>
-        <p>x<sub>n+1</sub> = sin(<span class="aVar"></span> * y<sub>n</sub>) + <span class="cVar"></span> * cos(<span
-                class="aVar"></span> * x<sub>n</sub>)</p>
-        <p>y<sub>n+1</sub> = sin(<span class="bVar"></span> * x<sub>n</sub>) + <span class="dVar"></span> * cos(<span
-                class="bVar"></span> * y<sub>n</sub>)</p>
     </div>
     <div>
         <a href="index.html">Menu</a>
@@ -77,13 +46,8 @@
         var sizeY;
         var centerX;
         var centerY;
-        var scale;
         var x;
         var y;
-        var a;
-        var b;
-        var c;
-        var d;
         var speed;
         var color;
         var backgroundColor;
@@ -92,12 +56,13 @@
         var percent;
         var canvas;
         var ctx;
-        var examples;
         var opacity;
         var points;
         var mouseDown;
         var minPoint;
         var maxPoint;
+        var colorsArray;
+        var colorIndex;
 
         init();
 
@@ -106,7 +71,7 @@
             setSliders();
             prepareEvents();
             clearPixelsArray();
-            requestAnimationFrame(draw);
+//            requestAnimationFrame(draw);
         }
 
         function prepareVariables() {
@@ -116,31 +81,26 @@
             sizeY = $("#canvas").height();
             centerX = sizeX / 2;
             centerY = sizeY / 2;
-            scale = sizeX / 6;
             x = centerX;
             y = centerY;
-            speed = 1;
+            speed = 100;
             color = 0xff0000;
+            colorsArray = [0xff0000, 0x00ff00, 0x0000ff, 0xb00b00,  0xde1e7e, 0xe1e100, 0xBADA55, 0xF0FEAF, 0xac1d1c, 0xfacade];
+            colorIndex = 0;
             backgroundColor = "#000000";
             stop = false;
             pixels = [];
             percent = 5 / 100;
-            a = -1.4;
-            b = 1.6;
-            c = 1.0;
-            d = 0.7;
-            examples = [];
             opacity = 0.05;
             points = [{x: x, y: y}];
-            mouseDown = false;
-            prepareExamples();
+            mouseDown = true;
+
             prepareCanvas();
         }
 
         function setSliders() {
             setSlidersValues();
             setSlidersLabelsValues();
-            setFormulaVariables();
         }
 
         function prepareEvents() {
@@ -160,38 +120,6 @@
                 clearPixelsArray();
                 ctx.fillStyle = backgroundColor;
                 ctx.fillRect(0, 0, sizeX, sizeY);
-            });
-
-            $("#aInput").bind('input', function () {
-                a = $("#aInput").val();
-                $("#aValue").html(a);
-                $(".aVar").html(a);
-                x = 0;
-                y = 0;
-            });
-
-            $("#bInput").bind('input', function () {
-                b = $("#bInput").val();
-                $("#bValue").html(b);
-                $(".bVar").html(b);
-                x = 0;
-                y = 0;
-            });
-
-            $("#cInput").bind('input', function () {
-                c = $("#cInput").val();
-                $("#cValue").html(c);
-                $(".cVar").html(c);
-                x = 0;
-                y = 0;
-            });
-
-            $("#dInput").bind('input', function () {
-                d = $("#dInput").val();
-                $("#dValue").html(d);
-                $(".dVar").html(d);
-                x = 0;
-                y = 0;
             });
 
             $("#opacityInput").bind('input', function () {
@@ -217,75 +145,20 @@
                 }
                 return false;
             });
-
-            $("#examples").change(function () {
-                var selectedIndex = $('select[name=examples]').val();
-                if (selectedIndex == -1) {
-                    return;
-                }
-
-                var selectedExample = examples[selectedIndex];
-                a = selectedExample.A;
-                b = selectedExample.B;
-                c = selectedExample.C;
-                d = selectedExample.D;
-                opacity = selectedExample.opacity;
-
-                setSlidersValues();
-                setSlidersLabelsValues();
-                setFormulaVariables();
-            });
-
-            $('#canvas').on('mousedown mouseup', function mouseState(e) {
-                if (e.type == "mousedown") {
-                    mouseDown = true;
-                    x = e.pageX;
-                    y = e.pageY;
-                    points = [{x: x, y: y}];
-                    minPoint = {x: x - 50, y: y - 50};
-                    maxPoint = {x: x + 50, y: y + 50};
-                } else {
-                    mouseDown = false;
-                }
-            });
-
-            $('#canvas').on('mousemove', function (e) {
-                if (mouseDown) {
-                    x = e.pageX;
-                    y = e.pageY;
-                    minPoint = {x: x - 50, y: y - 50};
-                    maxPoint = {x: x + 50, y: y + 50};
-                }
-            });
-        }
-
-        function setFormulaVariables() {
-            $(".aVar").html(a);
-            $(".bVar").html(b);
-            $(".cVar").html(c);
-            $(".dVar").html(d);
         }
 
         function setSlidersLabelsValues() {
-            $("#aValue").html(a);
-            $("#bValue").html(b);
-            $("#cValue").html(c);
-            $("#dValue").html(d);
             $("#opacityValue").html(opacity);
         }
 
         function setSlidersValues() {
-            $("#aInput").val(a);
-            $("#bInput").val(b);
-            $("#cInput").val(c);
-            $("#dInput").val(d);
             $("#opacityInput").val(opacity);
         }
 
         function clearPixelsArray() {
-            for (var i = 0; i < sizeX; ++i) {
+            for (let i = 0; i < sizeX; ++i) {
                 pixels[i] = [];
-                for (var j = 0; j < sizeY; ++j) {
+                for (let j = 0; j < sizeY; ++j) {
                     pixels[i][j] = 0;
                 }
             }
@@ -301,16 +174,74 @@
 
         }
 
-        var controllerOptions = {};
-        var center;
-        var radius = 20;
+        let controllerOptions = {enableGestures: true};
+        let center;
+        let radius = 5;
+        let fingers = [];
 
-        Leap.loop(controllerOptions, function(frame) {
-            var pointableString = "";
+        function createFinger(id) {
+            if(fingers[id] === undefined) {
+
+                fingers[id] = {color: color, radius: radius};
+            }
+        }
+
+        Leap.loop(controllerOptions, function (frame) {
+            if (frame.gestures.length > 0) {
+//                console.log(frame);
+            }
+
+
+            for (let i = 0; i < frame.gestures.length; ++i) {
+                let gesture = frame.gestures[i];
+                let radiusChanged = false;
+                let colorChanged = false;
+
+                if (gesture.type === 'circle' && gesture.state === 'stop') {
+                    if (gesture.normal[0] < 0) {
+                        radius += 5;
+                    }
+                    else {
+                        radius -= 5;
+                        if (radius <= 0) {
+                            radius = 1;
+                        }
+                    }
+
+                    radiusChanged = true;
+                }
+
+                if (gesture.type === 'keyTap') {
+                    colorIndex++;
+                    colorIndex %= colorsArray.length;
+                    color = colorsArray[colorIndex];
+                    colorChanged = true;
+                }
+
+                for(let j = 0; j < gesture.pointableIds.length; ++j) {
+                    let id = gesture.pointableIds[j];
+                    createFinger(id);
+                    if(radiusChanged) {
+                        fingers[id].radius = radius;
+                    }
+
+                    if(colorChanged) {
+                        fingers[id].color = color;
+                    }
+                }
+            }
+
             if (frame.pointables.length > 0) {
-                var i = 0;
-//                for (var i = 0; i < frame.pointables.length; i++) {
+//                let i = 0;
+
+                for (let i = 0; i < frame.pointables.length; i++) {
+
                     var pointable = frame.pointables[i];
+                    if (!pointable.extended) {
+                        continue;
+                    }
+
+                    createFinger(pointable.id);
 
                     var appWidth = sizeX;
                     var appHeight = sizeY;
@@ -324,42 +255,37 @@
                     var appY = (1 - normalizedPoint[1]) * appHeight;
 
 
-                    if(!mouseDown) {
-                        mouseDown = true;
-                        x = appX;
-                        y = appY;
-                        points = [{x: x, y: y}];
-                        minPoint = {x: x - 50, y: y - 50};
-                        maxPoint = {x: x + 50, y: y + 50};
-                        center = {x: x, y: y};
+//                    if(!mouseDown) {
+//                        mouseDown = true;
 
-                    } else {
-                        x = appX;
-                        y = appY;
-                        minPoint = {x: x - 50, y: y - 50};
-                        maxPoint = {x: x + 50, y: y + 50};
-                        center = {x: x, y: y};
-                    }
-//                    pointableString += "Pointable ID: " + pointable.id + "<br />";
-//                    pointableString += "Belongs to hand with ID: " + pointable.handId + "<br />";
-//                    pointableString += "Length: " + pointable.length.toFixed(1) + " mm<br />";
-//                    pointableString += "Width: "  + pointable.width.toFixed(1) + " mm<br />";
-//                    pointableString += "Direction: " + vectorToString(pointable.direction, 2) + "<br />";
-//                    pointableString += "Tip position: " + vectorToString(pointable.tipPosition) + " mm<br />";
-//                    pointableString += "Tip velocity: " + vectorToString(pointable.tipVelocity) + " mm/s<br />";
-//                }
+
+                    x = appX;
+                    y = appY;
+                    points = [{x: x, y: y}];
+                    minPoint = {x: x - 50, y: y - 50};
+                    maxPoint = {x: x + 50, y: y + 50};
+                    center = {x: x, y: y};
+                    draw(fingers[pointable.id]);
+
+//                    } else {
+//                        x = appX;
+//                        y = appY;
+//                        minPoint = {x: x - 50, y: y - 50};
+//                        maxPoint = {x: x + 50, y: y + 50};
+//                        center = {x: x, y: y};
+//                    }
+                }
             } else {
-                mouseDown = false;
+//                mouseDown = false;
             }
         });
 
         function distance(x1, y1, x2, y2) {
-            return Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+            return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
         }
 
-        function draw() {
-            requestAnimationFrame(draw);
-            if (stop || !mouseDown) {
+        function draw(finger) {
+            if (stop) {
                 return;
             }
 
@@ -377,13 +303,13 @@
 //                    continue;
 //                }
 
-                if(distance(xn, yn, center.x, center. y) > radius + Math.random() * 20) {
+                if (distance(xn, yn, center.x, center.y) > finger.radius) {
                     continue;
                 }
 
                 points.push({x: xn, y: yn});
-                if (points.length == 4) {
-                    var rgb = hex2rgb(color);
+                if (points.length === 4) {
+                    var rgb = hex2rgb(finger.color);
                     ctx.strokeStyle = "rgba(" + rgb[0] * 255 + "," + rgb[1] * 255 + "," + rgb[2] * 255 + "," + opacity + ")";
                     ctx.beginPath();
                     ctx.moveTo(points[0].x, points[0].y);
@@ -394,6 +320,25 @@
                     let reflectedPoints = [];
                     for (let j = 0; j < 4; ++j) {
                         reflectedPoints[j] = reflectVertically(points[j]);
+                    }
+
+                    ctx.beginPath();
+                    ctx.moveTo(reflectedPoints[0].x, reflectedPoints[0].y);
+                    ctx.bezierCurveTo(reflectedPoints[1].x, reflectedPoints[1].y, reflectedPoints[2].x, reflectedPoints[2].y, reflectedPoints[3].x, reflectedPoints[3].y);
+                    ctx.stroke();
+
+
+                    for (let j = 0; j < 4; ++j) {
+                        reflectedPoints[j] = reflectHorizontally(reflectedPoints[j]);
+                    }
+
+                    ctx.beginPath();
+                    ctx.moveTo(reflectedPoints[0].x, reflectedPoints[0].y);
+                    ctx.bezierCurveTo(reflectedPoints[1].x, reflectedPoints[1].y, reflectedPoints[2].x, reflectedPoints[2].y, reflectedPoints[3].x, reflectedPoints[3].y);
+                    ctx.stroke();
+
+                    for (let j = 0; j < 4; ++j) {
+                        reflectedPoints[j] = reflectHorizontally(points[j]);
                     }
 
                     ctx.beginPath();
@@ -414,111 +359,23 @@
         }
 
         function reflectVertically(point) {
-            var newPoint = {x: point.x, y: point.y};
+            let newPoint = {x: point.x, y: point.y};
             newPoint.x = centerX - point.x + centerX;
             return newPoint;
         }
 
         function reflectHorizontally(point) {
-            var newPoint = {x: point.x, y: point.y};
+            let newPoint = {x: point.x, y: point.y};
             newPoint.y = centerY - point.y + centerY;
             return newPoint;
         }
 
         function hex2rgb(hex) {
-            var rgb = [];
+            let rgb = [];
             rgb[0] = (hex >> 16 & 255) / 255;
             rgb[1] = (hex >> 8 & 255) / 255;
             rgb[2] = (255 & hex) / 255;
             return rgb;
-        }
-
-        function prepareExamples() {
-            examples[0] = {
-                name: "1",
-                A: -1.4,
-                B: 1.6,
-                C: 1.0,
-                D: 0.7,
-                opacity: 0.05
-            };
-            examples[1] = {
-                name: "2",
-                A: 1.6,
-                B: -0.6,
-                C: -1.2,
-                D: 1.6,
-                opacity: 0.05
-            };
-            examples[2] = {
-                name: "3",
-                A: 1.7,
-                B: 1.7,
-                C: 0.6,
-                D: 1.2,
-                opacity: 0.05
-            };
-            examples[3] = {
-                name: "4",
-                A: 1.5,
-                B: -1.8,
-                C: 1.6,
-                D: 0.9,
-                opacity: 0.05
-            };
-            examples[4] = {
-                name: "5",
-                A: -1.7,
-                B: 1.3,
-                C: -0.1,
-                D: -1.2,
-                opacity: 0.05
-            };
-            examples[5] = {
-                name: "6",
-                A: -1.7,
-                B: 1.8,
-                C: -1.9,
-                D: -0.4,
-                opacity: 0.05
-            };
-            examples[6] = {
-                name: "7",
-                A: -1.8,
-                B: -2.0,
-                C: -0.5,
-                D: -0.9,
-                opacity: 0.05
-            };
-            examples[7] = {
-                name: "8",
-                A: 1.7,
-                B: 1.2,
-                C: -0.4,
-                D: 1.3,
-                opacity: 0.05
-            };
-            examples[8] = {
-                name: "9",
-                A: 1.5,
-                B: -1.8,
-                C: 1.6,
-                D: 2,
-                opacity: 0.05
-            };
-            examples[9] = {
-                name: "10",
-                A: -2.0,
-                B: -2.0,
-                C: -0.7,
-                D: -1.3,
-                opacity: 0.05
-            };
-
-
-            for (var i = 0; i < examples.length; ++i) {
-                $("#examples").append("<option value='" + i + "'>" + examples[i].name + "</option>");
-            }
         }
     });
 </script>
