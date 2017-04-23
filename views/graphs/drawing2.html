@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Random Line</title>
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+    <script src="../../js/jquery-3.2.1.min.js"></script>
+    <script src="../../js/leap-0.6.3.js"></script>
+    <script src="../../js/sketch.min.js"></script>
+    <script>if (window.module) module = window.module;</script>
+    <link href="../../css/main.css" type="text/css" rel="stylesheet"/>
+</head>
+<body id="fractal_body">
+<div id="canvas"></div>
+<form>
+    <div>
+        <label for="speedInput">Speed</label>
+        <input class="slider" type="range" min="1" max="300" id="speedInput" value="100"/>
+    </div>
+    <div>
+        <label for="colorInput">Color</label>
+        <input type="color" id="colorInput" value="#ff0000"/>
+    </div>
+    <div>
+        <label for="backgroundColorInput">Background color</label>
+        <input type="color" id="backgroundColorInput" value="#000000"/>
+    </div>
+
+    <div>
+        <label for="opacityInput">Intensity: <span id="opacityValue">0.05</span></label>
+        <input class="slider" type="range" min="0.01" max="1" id="opacityInput" value="0.05" step="0.01"/>
+    </div>
+    <div>
+        <button id="clearButton">Clear</button>
+    </div>
+    <div>
+        <button id="stopButton">Stop</button>
+    </div>
+    <div>
+        <a href="index.html">Menu</a>
+    </div>
+</form>
+
+<script>
+    jQuery(document).ready(function () {
+        function Particle( x, y, radius ) {
+            this.init( x, y, radius );
+        }
+
+        Particle.prototype = {
+
+            init: function( x, y, radius ) {
+
+                this.alive = true;
+
+                this.radius = radius || 10;
+                this.wander = 0.15;
+                this.theta = random( TWO_PI );
+                this.drag = 0.92;
+                this.color = '#fff';
+
+                this.x = x || 0.0;
+                this.y = y || 0.0;
+
+                this.vx = 0.0;
+                this.vy = 0.0;
+            },
+
+            move: function() {
+
+                this.x += this.vx;
+                this.y += this.vy;
+
+                this.vx *= this.drag;
+                this.vy *= this.drag;
+
+                this.theta += random( -0.5, 0.5 ) * this.wander;
+                this.vx += sin( this.theta ) * 0.1;
+                this.vy += cos( this.theta ) * 0.1;
+
+                this.radius *= 0.96;
+                this.alive = this.radius > 0.5;
+            },
+
+            draw: function( ctx ) {
+
+                ctx.beginPath();
+                ctx.arc( this.x, this.y, this.radius, 0, TWO_PI );
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        };
+
+// ----------------------------------------
+// Example
+// ----------------------------------------
+
+        var MAX_PARTICLES = 280;
+        var COLOURS = [ '#69D2E7', '#A7DBD8', '#E0E4CC', '#F38630', '#FA6900', '#FF4E50', '#F9D423' ];
+
+        var particles = [];
+        var pool = [];
+
+        var demo = Sketch.create({
+            container: document.getElementById( 'canvas' )
+        });
+
+        demo.setup = function() {
+
+            // Set off some initial particles.
+//            var i, x, y;
+//
+//            for ( i = 0; i < 20; i++ ) {
+//                x = ( demo.width * 0.5 ) + random( -100, 100 );
+//                y = ( demo.height * 0.5 ) + random( -100, 100 );
+//                demo.spawn( x, y );
+//            }
+        };
+
+        demo.spawn = function( x, y ) {
+
+            if ( particles.length >= MAX_PARTICLES )
+                pool.push( particles.shift() );
+
+            particle = pool.length ? pool.pop() : new Particle();
+            particle.init( x, y, random( 5, 40 ) );
+
+            particle.wander = random( 0.5, 2.0 );
+            particle.color = random( COLOURS );
+            particle.drag = random( 0.9, 0.99 );
+
+            theta = random( TWO_PI );
+            force = random( 2, 8 );
+
+            particle.vx = sin( theta ) * force;
+            particle.vy = cos( theta ) * force;
+
+            particles.push( particle );
+        };
+
+        demo.update = function() {
+
+            var i, particle;
+
+            for ( i = particles.length - 1; i >= 0; i-- ) {
+
+                particle = particles[i];
+
+                if ( particle.alive ) particle.move();
+                else pool.push( particles.splice( i, 1 )[0] );
+            }
+        };
+
+        demo.draw = function() {
+
+            demo.globalCompositeOperation  = 'lighter';
+
+            for ( var i = particles.length - 1; i >= 0; i-- ) {
+                particles[i].draw( demo );
+            }
+        };
+
+        demo.mousemove = function() {
+
+            var particle, theta, force, touch, max, i, j, n;
+
+            for ( i = 0, n = demo.touches.length; i < n; i++ ) {
+
+                touch = demo.touches[i];
+                max = random( 1, 4 );
+                for ( j = 0; j < max; j++ ) demo.spawn( touch.x, touch.y );
+            }
+        };
+
+        Leap.loop({}, function (frame) {
+            if (frame.pointables.length > 0) {
+                for (let i = 0; i < frame.pointables.length; i++) {
+
+                    let pointable = frame.pointables[i];
+                    if (!pointable.extended) {
+                        continue;
+                    }
+
+                    var appWidth = $('#canvas').width;
+                    var appHeight = $('#canvas').height;
+
+                    var iBox = frame.interactionBox;
+
+                    var leapPoint = pointable.stabilizedTipPosition;
+                    var normalizedPoint = iBox.normalizePoint(leapPoint, true);
+
+                    var appX = normalizedPoint[0] * appWidth;
+                    var appY = (1 - normalizedPoint[1]) * appHeight;
+                    let max = random(1,4);
+                    for ( let j = 0; j < max; j++ ) demo.spawn( appX, appY );
+                }
+            }
+        });
+
+        function hex2rgb(hex) {
+            let rgb = [];
+            rgb[0] = (hex >> 16 & 255) / 255;
+            rgb[1] = (hex >> 8 & 255) / 255;
+            rgb[2] = (255 & hex) / 255;
+            return rgb;
+        }
+    });
+</script>
+</body>
+</html>
