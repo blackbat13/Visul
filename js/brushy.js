@@ -1,64 +1,64 @@
 /**
  * Created by blackbat on 24.11.2016.
  */
-var Brushy = function (canvasId, width, height) {
-    var canvas;
-    var ctx;
-    var backgroundColor;
-    var drawingColor;
+class Brushy {
+    constructor(canvasId, width, height) {
+        this.canvasId = canvasId;
+        this.$canvas = $('#' + canvasId);
+        this.width = width;
+        this.height = height;
+    }
 
-    var init = function () {
-        canvas = document.getElementById(canvasId);
-        canvas.width = width;
-        canvas.height = height;
-        ctx = canvas.getContext("2d");
-        backgroundColor = "#fff";
-        drawingColor = "#000";
+    init() {
+        this.canvas = document.getElementById(this.canvasId);
+        this.canvas.width = width;
+        this.canvas.height = height;
+        this.ctx = this.canvas.getContext("2d");
+        this.backgroundColor = "#fff";
+        this.drawingColor = "#000";
     };
 
-    init();
-
-    var checkColor = function (color) {
+    static checkColor(color) {
         //TODO implement
         return true;
-    };
+    }
 
-    var checkXCoordinate = function (x) {
+    static checkXCoordinate(x) {
         return !(x < 0 || x > width);
-    };
+    }
 
-    var checkYCoordinate = function (y) {
+    static checkYCoordinate(y) {
         return !(y < 0 || y > height);
-    };
+    }
 
-    var checkCoordinates = function (x, y) {
+    static checkCoordinates(x, y) {
         return !(y < 0 || y > height || x < 0 || x > width);
-    };
+    }
 
-    var rgbToColor = function (r, g, b) {
+    static rgbToColor(r, g, b) {
         return `rgb(${r}, ${g}, ${b})`;
-    };
+    }
 
-    var rgbaToColor = function (r, g, b, a) {
+    static rgbaToColor(r, g, b, a) {
         return `rgba(${r}, ${g}, ${b}, ${a})`;
-    };
+    }
 
-    var colorToRgb = function (color) {
+    static colorToRgb(color) {
         let r, g, b;
 
-        var colorArray = color.split("rgb(,)");
+        let colorArray = color.split("rgb(,)");
 
         r = parseInt(colorArray[0]);
         g = parseInt(colorArray[1]);
         b = parseInt(colorArray[2]);
 
         return {r: r, g: g, b: b};
-    };
+    }
 
-    var colorToRgba = function (color) {
+    static colorToRgba(color) {
         let r, g, b, a;
 
-        var colorArray = color.split("rgba(,)");
+        let colorArray = color.split("rgba(,)");
 
         r = parseInt(colorArray[0]);
         g = parseInt(colorArray[1]);
@@ -66,211 +66,208 @@ var Brushy = function (canvasId, width, height) {
         a = parseFloat(colorArray[3]);
 
         return {r: r, g: g, b: b, a: a};
-    };
+    }
 
-    var checkColorValue = function (value) {
+    static checkColorValue(value) {
         return !(value < 0 || value > 255);
-    };
+    }
 
-    var checkOpacityValue = function (opacity) {
+    static checkOpacityValue(opacity) {
         return !(opacity < 0 || opacity > 1);
-    };
+    }
 
-    var checkRgb = function (r, g, b) {
-        return checkColorValue(r) && checkColorValue(g) && checkColorValue(b);
-    };
+    static checkRgb(r, g, b) {
+        return Brushy.checkColorValue(r) && Brushy.checkColorValue(g) && Brushy.checkColorValue(b);
+    }
 
-    var checkRgba = function (r, g, b, a) {
-        return checkColorValue(r) && checkColorValue(g) && checkColorValue(b) && checkOpacityValue(a);
-    };
+    static checkRgba(r, g, b, a) {
+        return Brushy.checkColorValue(r) && Brushy.checkColorValue(g) && Brushy.checkColorValue(b) && Brushy.checkOpacityValue(a);
+    }
 
-    var randomColorValue = function () {
+    static randomColorValue() {
         return Math.round(Math.random() * 255);
-    };
+    }
 
-    var randomColor = function () {
-        return rgbToColor(randomColorValue(), randomColorValue(), randomColorValue());
-    };
+    static randomColor() {
+        return Brushy.rgbToColor(Brushy.randomColorValue(), Brushy.randomColorValue(), Brushy.randomColorValue());
+    }
 
-    var randomColorWithOpacity = function (opacity) {
-        if(!checkOpacityValue(opacity)) {
+    static randomColorWithOpacity(opacity) {
+        if(!Brushy.checkOpacityValue(opacity)) {
             return false;
         }
 
-        return rgbaToColor(randomColorValue(), randomColorValue(), randomColorValue(), opacity);
-    };
+        return Brushy.rgbaToColor(Brushy.randomColorValue(), Brushy.randomColorValue(), Brushy.randomColorValue(), opacity);
+    }
 
-
-    // Public methods
-
-    this.setDrawingColor = function (color) {
-        if (!checkColor(color)) {
+    setDrawingColor(color) {
+        if (!Brushy.checkColor(color)) {
             return false;
         }
 
-        drawingColor = color;
+        this.drawingColor = color;
+        return true;
+    }
+
+    setBackgroundColor(color) {
+        if (!Brushy.checkColor(color)) {
+            return false;
+        }
+
+        this.backgroundColor = color;
         return true;
     };
 
-    this.setBackgroundColor = function (color) {
-        if (!checkColor(color)) {
-            return false;
-        }
-
-        backgroundColor = color;
+    clean() {
+        this.ctx.fillStyle = backgroundColor;
+        this.ctx.fillRect(0, 0, width, height);
         return true;
     };
 
-    this.clean = function () {
-        ctx.fillStyle = backgroundColor;
-        ctx.fillRect(0, 0, width, height);
+    cleanWithColor(color) {
+        if (!Brushy.checkColor(color)) {
+            return false;
+        }
+
+        this.ctx.fillStyle = color;
+        this.ctx.fillRect(0, 0, width, height);
         return true;
     };
 
-    this.cleanWithColor = function (color) {
-        if (!checkColor(color)) {
+    setPixel(x, y) {
+        if (!Brushy.checkCoordinates(x, y)) {
             return false;
         }
 
-        ctx.fillStyle = color;
-        ctx.fillRect(0, 0, width, height);
+        this.ctx.fillStyle = this.drawingColor;
+        this.ctx.fillRect(x, y, 1, 1);
         return true;
     };
 
-    this.setPixel = function (x, y) {
-        if (!checkCoordinates(x, y)) {
+    setPixelWithColor(x, y, color) {
+        if (!Brushy.checkCoordinates(x, y)) {
             return false;
         }
 
-        ctx.fillStyle = drawingColor;
-        ctx.fillRect(x, y, 1, 1);
+        if (!Brushy.checkColor(color)) {
+            return false;
+        }
+
+        this.ctx.fillStyle = color;
+        this.ctx.fillRect(x, y, 1, 1);
         return true;
     };
 
-    this.setPixelWithColor = function (x, y, color) {
-        if (!checkCoordinates(x, y)) {
+    setPixelWithRgb(x, y, r, g, b) {
+        if (!Brushy.checkCoordinates(x, y)) {
             return false;
         }
 
-        if (!checkColor(color)) {
+        if (!Brushy.checkRgb(r, g, b)) {
             return false;
         }
 
-        ctx.fillStyle = color;
-        ctx.fillRect(x, y, 1, 1);
+        this.ctx.fillStyle = Brushy.rgbToColor(r, g, b);
+        this.ctx.fillRect(x, y, 1, 1);
         return true;
     };
 
-    this.setPixelWithRgb = function (x, y, r, g, b) {
-        if (!checkCoordinates(x, y)) {
+    setPixelWithRgba(x, y, r, g, b, a) {
+        if (!Brushy.checkCoordinates(x, y)) {
             return false;
         }
 
-        if (!checkRgb(r, g, b)) {
+        if (!Brushy.checkRgba(r, g, b, a)) {
             return false;
         }
 
-        ctx.fillStyle = rgbToColor(r, g, b);
-        ctx.fillRect(x, y, 1, 1);
+        this.ctx.fillStyle = Brushy.rgbaToColor(r, g, b, a);
+        this.ctx.fillRect(x, y, 1, 1);
         return true;
     };
 
-    this.setPixelWithRgba = function (x, y, r, g, b, a) {
-        if (!checkCoordinates(x, y)) {
+    setPixelWithRandomColor(x, y) {
+        if (!Brushy.checkCoordinates(x, y)) {
             return false;
         }
 
-        if (!checkRgba(r, g, b, a)) {
-            return false;
-        }
-
-        ctx.fillStyle = rgbaToColor(r, g, b, a);
-        ctx.fillRect(x, y, 1, 1);
+        this.ctx.fillStyle = Brushy.randomColor();
+        this.ctx.fillRect(x, y, 1, 1);
         return true;
     };
 
-    this.setPixelWithRandomColor = function (x, y) {
-        if (!checkCoordinates(x, y)) {
-            return false;
-        }
-
-        ctx.fillStyle = randomColor();
-        ctx.fillRect(x, y, 1, 1);
-        return true;
+    getPixelColor(x, y) {
+        let imageData = this.ctx.getImageData(x, y, 1, 1);
+        return Brushy.rgbaToColor(imageData[0], imageData[1], imageData[2], imageData[3]);
     };
 
-    this.getPixelColor = function (x, y) {
-        let imageData = ctx.getImageData(x, y, 1, 1);
-        return rgbaToColor(imageData[0], imageData[1], imageData[2], imageData[3]);
-    };
-
-    this.getPixelRgb = function (x, y) {
-        let imageData = ctx.getImageData(x, y, 1, 1);
+    getPixelRgb(x, y) {
+        let imageData = this.ctx.getImageData(x, y, 1, 1);
         return {r: imageData[0], g: imageData[1], b: imageData[2]};
-    };
+    }
 
-    this.getPixelRgba = function (x, y) {
-        let imageData = ctx.getImageData(x, y, 1, 1);
+    getPixelRgba(x, y) {
+        let imageData = this.ctx.getImageData(x, y, 1, 1);
         return {r: imageData[0], g: imageData[1], b: imageData[2], a: imageData[3]};
-    };
+    }
 
-    this.getRandomColor = function () {
-        return randomColor();
-    };
+    static getRandomColor() {
+        return Brushy.randomColor();
+    }
 
-    this.getRandomColorWithOpacity = function (opacity) {
-        return randomColorWithOpacity(opacity);
-    };
+    static getRandomColorWithOpacity(opacity) {
+        return Brushy.randomColorWithOpacity(opacity);
+    }
 
-    this.drawVerticalStripe = function (x, stripeWidth) {
-        if (!checkXCoordinate(x)) {
+    drawVerticalStripe(x, stripeWidth) {
+        if (!Brushy.checkXCoordinate(x)) {
             return false;
         }
 
-        ctx.fillStyle = drawingColor;
-        ctx.fillRect(x, 0, stripeWidth, height);
+        this.ctx.fillStyle = this.drawingColor;
+        this.ctx.fillRect(x, 0, stripeWidth, height);
         return true;
-    };
+    }
 
-    this.drawVerticalStripeWithColor = function (x, stripeWidth, color) {
-        if (!checkXCoordinate(x)) {
+    drawVerticalStripeWithColor(x, stripeWidth, color) {
+        if (!Brushy.checkXCoordinate(x)) {
             return false;
         }
 
-        if (!checkColor(color)) {
+        if (!Brushy.checkColor(color)) {
             return false;
         }
 
-        ctx.fillStyle = color;
-        ctx.fillRect(x, 0, stripeWidth, height);
+        this. ctx.fillStyle = color;
+        this.ctx.fillRect(x, 0, stripeWidth, height);
         return true;
-    };
+    }
 
-    this.drawVerticalStripeWithRgb = function (x, stripeWidth, r, g, b) {
-        if (!checkXCoordinate(x)) {
+    drawVerticalStripeWithRgb(x, stripeWidth, r, g, b) {
+        if (!Brushy.checkXCoordinate(x)) {
             return false;
         }
 
-        if (!checkRgb(r, g, b)) {
+        if (!Brushy.checkRgb(r, g, b)) {
             return false;
         }
 
-        ctx.fillStyle = rgbToColor(r, g, b);
-        ctx.fillRect(x, 0, stripeWidth, height);
+        this.ctx.fillStyle = Brushy.rgbToColor(r, g, b);
+        this.ctx.fillRect(x, 0, stripeWidth, height);
         return true;
-    };
+    }
 
-    this.drawVerticalStripeWithRgba = function (x, stripeWidth, r, g, b, a) {
-        if (!checkXCoordinate(x)) {
+    drawVerticalStripeWithRgba(x, stripeWidth, r, g, b, a) {
+        if (!Brushy.checkXCoordinate(x)) {
             return false;
         }
 
-        if (!checkRgba(r, g, b, a)) {
+        if (!Brushy.checkRgba(r, g, b, a)) {
             return false;
         }
 
-        ctx.fillStyle = rgbaToColor(r, g, b, a);
-        ctx.fillRect(x, 0, stripeWidth, height);
+        this.ctx.fillStyle = Brushy.rgbaToColor(r, g, b, a);
+        this.ctx.fillRect(x, 0, stripeWidth, height);
         return true;
-    };
-};
+    }
+}
