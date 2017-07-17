@@ -72,3 +72,25 @@ body {
 #inputs_container input {
     text-align: center;
 }
+
+#data_container * {
+    display: block;
+    width: 300px;
+}
+
+#data_container div {
+    padding: 10px;
+}
+
+#data_container label {
+    margin-bottom: 3px;
+    font-weight: 800;
+}
+
+#data_container input{
+    font-size: 13pt;
+}
+
+#data_container input {
+    text-align: center;
+}

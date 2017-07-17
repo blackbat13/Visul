@@ -14,6 +14,16 @@
 <body>
 <div class="container" id="identifiers"></div>
 <div class="container" id="machine"></div>
+<div id="data_container">
+    <div>
+        <label for="cur_state">Obecny stan maszyny</label>
+        <input title="cur_state" id="cur_state" type="text" disabled>
+    </div>
+    <div>
+        <label for="last_move">Ostatni ruch</label>
+        <input title="last_move" id="last_move" type="text" disabled>
+    </div>
+</div>
 <div id="inputs_container">
     <div>
         <label for="position">Pozycja początkowa głowicy</label>
@@ -28,7 +38,14 @@
         <textarea title="code" id="code" rows="20"></textarea>
     </div>
     <div>
+        <label for="step_by_step">Krok po kroku</label>
+        <input type="checkbox" title="step_by_step" id="step_by_step">
+    </div>
+    <div>
         <button id="run">Uruchom</button>
+    </div>
+    <div>
+        <button id="next_step">Następny krok</button>
     </div>
     <div>
         <button id="stop">Zatrzymaj</button>
@@ -43,6 +60,9 @@
         let $machine = $('#machine');
         let $code = $('#code');
         let $beginning = $('#beginning');
+        let $curState = $("#cur_state");
+        let $lastMove = $("#last_move");
+        let $beginningPosition = $("#position");
         let currentIndex;
         let rules;
         let beginningState = 'A';
@@ -54,6 +74,9 @@
         let speedCount = 0;
         let maxBlockNumber = 20;
         let minBlockNumber = 0;
+        let moveByStep = false;
+        let finished = false;
+        let blocksToAdd = 5;
 
         createMachine();
 
@@ -89,10 +112,13 @@
                     $currentBlock.removeClass('current_block');
                     currentIndex += rule.move;
                     if(currentIndex > maxBlockNumber) {
-                        addBlocks("right", 10);
+                        addBlocks("right", blocksToAdd);
                     } else if (currentIndex < minBlockNumber) {
-                        addBlocks("left", 10);
+                        addBlocks("left", blocksToAdd);
                     }
+
+                    $curState.val(currentState);
+                    $lastMove.val(rule.move === 1 ? "R" : rule.move === 0 ? "-" : "L");
 
                     $currentBlock = $('#turing_block_' + currentIndex);
                     $currentBlock.addClass('current_block');
@@ -107,8 +133,12 @@
                 $currentBlock.removeClass('current_block');
                 running = false;
                 speedCount = 0;
+                finished = true;
             }
 
+            if(moveByStep) {
+                running = false;
+            }
         }
 
         $('#clear').click(function () {
@@ -151,15 +181,28 @@
                 rules.push(rule);
             }
 
-            console.log(rules);
+//            console.log(rules);
 
-            currentIndex = 0;
+            currentIndex = parseInt($beginningPosition.val());
             currentState = beginningState;
             $currentBlock = $('#turing_block_' + currentIndex);
             currentChar = $currentBlock.html();
             $currentBlock.addClass('current_block');
             beginningState = $beginning.val();
+            finished = false;
             running = true;
+        });
+
+        $("#next_step").click(function () {
+           if(finished) {
+               return;
+           }
+
+           running = true;
+        });
+
+        $('#step_by_step').click(function () {
+           moveByStep = !moveByStep;
         });
 
 //        addBlocks("left", 10);
