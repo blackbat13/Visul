@@ -12,46 +12,57 @@
     <link href="../../css/turing_machine.css" type="text/css" rel="stylesheet"/>
 </head>
 <body>
-<div class="container" id="identifiers"></div>
-<div class="container" id="machine"></div>
-<div id="data_container">
-    <div>
-        <label for="cur_state">Obecny stan maszyny</label>
-        <input title="cur_state" id="cur_state" type="text" disabled>
+<div id="fixed_block">
+    <div id="head">
+        <div id="title">
+            <h1>Symulator Maszyny Turinga</h1>
+        </div>
     </div>
-    <div>
-        <label for="last_move">Ostatni ruch</label>
-        <input title="last_move" id="last_move" type="text" disabled>
+    <div id="tm_block">
+        <div class="container" id="identifiers"></div>
+        <div class="container" id="machine"></div>
     </div>
 </div>
-<div id="inputs_container">
-    <div>
-        <label for="position">Pozycja początkowa głowicy</label>
-        <input title="position" type="number" id="position" value="1">
+<div id="data_block">
+    <div id="data_container">
+        <div>
+            <label for="cur_state">Obecny stan maszyny</label>
+            <input title="cur_state" id="cur_state" type="text" disabled>
+        </div>
+        <div>
+            <label for="last_move">Ostatni ruch</label>
+            <input title="last_move" id="last_move" type="text" disabled>
+        </div>
     </div>
-    <div>
-        <label for="beginning">Stan początkowy</label>
-        <input title="beginning" type="text" id="beginning" value="A"/>
-    </div>
-    <div>
-        <label for="code">Kod Maszyny Turinga</label>
-        <textarea title="code" id="code" rows="20"></textarea>
-    </div>
-    <div>
-        <label for="step_by_step">Krok po kroku</label>
-        <input type="checkbox" title="step_by_step" id="step_by_step">
-    </div>
-    <div>
-        <button id="run">Uruchom</button>
-    </div>
-    <div>
-        <button id="next_step">Następny krok</button>
-    </div>
-    <div>
-        <button id="stop">Zatrzymaj</button>
-    </div>
-    <div>
-        <button id="clear">Wyczyść</button>
+    <div id="inputs_container">
+        <div>
+            <label for="position">Pozycja początkowa głowicy</label>
+            <input title="position" type="number" id="position" value="1">
+        </div>
+        <div>
+            <label for="beginning">Stan początkowy</label>
+            <input title="beginning" type="text" id="beginning" value="A"/>
+        </div>
+        <div>
+            <label for="code">Kod Maszyny Turinga</label>
+            <textarea title="code" id="code" rows="20"></textarea>
+        </div>
+        <div>
+            <label for="step_by_step">Krok po kroku</label>
+            <input type="checkbox" title="step_by_step" id="step_by_step">
+        </div>
+        <div>
+            <button id="run">Uruchom</button>
+        </div>
+        <div>
+            <button id="next_step">Następny krok</button>
+        </div>
+        <div>
+            <button id="stop">Zatrzymaj</button>
+        </div>
+        <div>
+            <button id="clear">Wyczyść</button>
+        </div>
     </div>
 </div>
 <script>
@@ -111,7 +122,7 @@
                     $currentBlock.html(rule.replaceChar);
                     $currentBlock.removeClass('current_block');
                     currentIndex += rule.move;
-                    if(currentIndex > maxBlockNumber) {
+                    if (currentIndex > maxBlockNumber) {
                         addBlocks("right", blocksToAdd);
                     } else if (currentIndex < minBlockNumber) {
                         addBlocks("left", blocksToAdd);
@@ -136,20 +147,20 @@
                 finished = true;
             }
 
-            if(moveByStep) {
+            if (moveByStep) {
                 running = false;
             }
         }
 
         $('#clear').click(function () {
             running = false;
-            for(let i = minBlockNumber; i <= maxBlockNumber; ++i) {
+            for (let i = minBlockNumber; i <= maxBlockNumber; ++i) {
                 $('#turing_block_' + i).html('');
             }
         });
 
         $('#stop').click(function () {
-           running = false;
+            running = false;
         });
 
         $('#run').click(function () {
@@ -194,29 +205,29 @@
         });
 
         $("#next_step").click(function () {
-           if(finished) {
-               return;
-           }
+            if (finished) {
+                return;
+            }
 
-           running = true;
+            running = true;
         });
 
         $('#step_by_step').click(function () {
-           moveByStep = !moveByStep;
+            moveByStep = !moveByStep;
         });
 
-//        addBlocks("left", 10);
+//        addBlocks("left", 30);
 //        addBlocks("right", 10);
 
         function addBlocks(side, num) {
-            if(side === "left") {
-                for(let i = minBlockNumber - 1; i >= minBlockNumber - num; --i) {
+            if (side === "left") {
+                for (let i = minBlockNumber - 1; i >= minBlockNumber - num; --i) {
                     $identifiers.prepend('<div class="identifier">' + i + '</div>');
                     $machine.prepend('<div class="turing_block" id="turing_block_' + i + '" contenteditable="true"></div>');
                 }
                 minBlockNumber = minBlockNumber - num;
-            } else if(side === "right") {
-                for(let i = maxBlockNumber + 1; i <= maxBlockNumber + num; ++i) {
+            } else if (side === "right") {
+                for (let i = maxBlockNumber + 1; i <= maxBlockNumber + num; ++i) {
                     $identifiers.append('<div class="identifier">' + i + '</div>');
                     $machine.append('<div class="turing_block" id="turing_block_' + i + '" contenteditable="true"></div>');
                 }
