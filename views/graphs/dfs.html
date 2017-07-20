@@ -17,15 +17,15 @@
     </div>
     <div>
         <label for="lengthInput">Length</label>
-        <input class="slider" type="range" min="1" max="100" id="lengthInput" value="10"/>
+        <input class="slider" type="range" min="4" max="100" id="lengthInput" value="10"/>
     </div>
     <div>
         <label for="colorInput">Color</label>
-        <input type="color" id="colorInput" value="#00ff00"/>
+        <input type="color" id="colorInput" value="#ffffff"/>
     </div>
     <div>
-        <label for="opacityInput">Intensity: <span id="opacityValue">0.05</span></label>
-        <input class="slider" type="range" min="0.01" max="1" id="opacityInput" value="0.05" step="0.01"/>
+        <label for="opacityInput">Intensity: <span id="opacityValue">1</span></label>
+        <input class="slider" type="range" min="0.01" max="1" id="opacityInput" value="1" step="0.01"/>
     </div>
     <div>
         <label for="changeColorInput">Change color</label>
@@ -93,12 +93,12 @@
             x = 0;
             y = 0;
             speed = 10;
-            color = 0x00ff00;
+            color = 0xffffff;
             backgroundColor = "#000000";
             stop = false;
             pixels = [];
             percent = 5 / 100;
-            opacity = 0.05;
+            opacity = 1;
             examples = [];
             visited = [];
             dfsStack = [];
@@ -258,7 +258,7 @@
             var rgb = hex2rgb(color);
             ctx.fillStyle = color;
             ctx.strokeStyle = "rgba(" + rgb[0] * 255 + "," + rgb[1] * 255 + "," + rgb[2] * 255 + "," + opacity + ")";
-            ctx.lineWidth = 2;
+            ctx.lineWidth = moveLength / 2;
             ctx.beginPath();
 
             for (var i = 0; i < speed && dfsStack.length > 0 && !stop; ++i) {
@@ -279,7 +279,11 @@
 //                ctx.strokeStyle = "rgba(" + Math.round(distance*255) + "," + 0 + "," + 0 + "," + opacity + ")";
 
                 ctx.moveTo(currentPoint.fromX, currentPoint.fromY);
-                ctx.lineTo(currentPoint.x, currentPoint.y);
+                let xGreater = currentPoint.x > currentPoint.fromX ? 1 : -1;
+                let yGreater = currentPoint.y > currentPoint.fromY ? 1 : -1;
+                let xEqual = currentPoint.x === currentPoint.fromX ? 0 : 1;
+                let yEqual = currentPoint.y === currentPoint.fromY ? 0 : 1;
+                ctx.lineTo(currentPoint.x + xEqual * xGreater * (moveLength/4), currentPoint.y + yEqual * yGreater * (moveLength/4));
                 ctx.stroke();
 
                 var possibleLine = [];
