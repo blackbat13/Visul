@@ -102,7 +102,7 @@
             examples = [];
             visited = [];
             dfsStack = [];
-            dfsStack.push({x: 0, y: 0, fromX: 0, fromY: 0, distance: 0});
+            dfsStack.push({x: sizeX/2, y: sizeY/2, fromX: sizeX/2, fromY: sizeY/2, distance: 0});
             moves = [{x: -1, y: 0}, {x: 1, y: 0}, {x: 0, y: -1}, {x: 0, y: 1}];
             colorsArray = [0xff0000, 0x00ff00, 0x0000ff, 0xb00b00,  0xde1e7e, 0xe1e100, 0xBADA55, 0xF0FEAF, 0xac1d1c, 0xfacade, 0xc2e9fb, 0x96e6a1, 0xf68084, 0xfee140, 0x3cba92];
             colorIndex = -1;
@@ -184,7 +184,8 @@
                 ctx.fillStyle = backgroundColor;
                 ctx.fillRect(0, 0, sizeX, sizeY);
                 dfsStack = [];
-                dfsStack.push({x: 0, y: 0, fromX: 0, fromY: 0, distance: 0});
+//                dfsStack.push({x: 0, y: 0, fromX: 0, fromY: 0, distance: 0});
+                dfsStack.push({x: sizeX/2, y: sizeY/2, fromX: sizeX/2, fromY: sizeY/2, distance: 0});
                 prepareVisited();
                 stop = false;
                 return false;
@@ -249,7 +250,7 @@
             }
 
             colorChangeCount++;
-            if(colorChangeCount > 50 && changeColor) {
+            if(colorChangeCount > 30 * 100/moveLength && changeColor) {
                 colorChangeCount = 0;
                 color = getNextColor();
             }
@@ -262,6 +263,7 @@
             ctx.beginPath();
 
             for (var i = 0; i < speed && dfsStack.length > 0 && !stop; ++i) {
+                colorChangeCount++;
                 var rnd;
                 var currentPoint = dfsStack.pop();
                 if(visited[currentPoint.x][currentPoint.y] == true) {
