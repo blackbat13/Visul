@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sorting</title>
+    <title>Magnetic Particles</title>
     <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
     <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
     <script src="../../js/point.js"></script>
@@ -54,7 +54,7 @@
 
         function init() {
             prepareVariables();
-            requestAnimationFrame(draw);
+            requestAnimationFrame(animate);
         }
 
         function prepareVariables() {
@@ -83,16 +83,60 @@
             particles = [];
             for(let i = 0; i < 10; ++i) {
                 let particle = new Particle(new Rectangle(0, 0, sizeX, sizeY));
-                // console.log(particle);
                 particles.push(particle);
-                // console.log(particles[0]);
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            resetForces();
+            updateForces();
+            updateParticles();
+            containParticles();
+            draw();
+        }
+
+        function resetForces() {
+            for(let i = 0; i < particles.length; ++i) {
+                particles[i].resetForce();
+            }
+        }
+
+        function updateForces() {
+            for(let i = 0; i < particles.length; ++i) {
+                for(let j = i + 1; j < particles.length; ++j) {
+                    let difference = Point.difference(particles[j].location, particles[i].location);
+                    let distance = Point.distance(particles[j].location, particles[i].location);
+
+                    if(distance === 0) {
+                        continue;
+                    }
+
+                    let forceVal = -1 * particles[i].charge * particles[j].charge / (distance * distance);
+                    forceVal = Math.min(forceVal, 1000);
+                    let force = new Point(forceVal * difference.x / distance, forceVal * difference.y / distance);
+                    particles[i].force.add(force);
+                    particles[j].force.substract(force);
+                }
+            }
+        }
+
+        function updateParticles() {
+            for(let i = 0; i < particles.length; ++i) {
+                particles[i].applyForce();
+                particles[i].move();
+            }
+        }
+
+        function containParticles() {
+            for(let i = 0; i < particles.length; ++i) {
+                particles[i].bounce(new Rectangle(0, 0, sizeX, sizeY));
             }
         }
 
         function draw() {
-            requestAnimationFrame(draw);
-
-            ctx.fillStyle = "#f00";
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, sizeX, sizeY);
             for(let i=0; i < particles.length; ++i) {
                 particles[i].draw(ctx);
             }

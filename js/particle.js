@@ -12,6 +12,22 @@ class Particle {
         this._charge = 10;
     }
 
+    get location() {
+        return this._location;
+    }
+
+    get radius() {
+        return this._radius;
+    }
+
+    get charge() {
+        return this._charge;
+    }
+
+    get force() {
+        return this._force;
+    }
+
     getRandomLocation(rect) {
         this._location.x = Math.random() * rect.width + rect.minX;
         this._location.y = Math.random() * rect.height + rect.minY;
@@ -59,13 +75,5 @@ class Particle {
         ctx.beginPath();
         ctx.arc(this.location.intX, this.location.intY, this.radius, 0, 2 * Math.PI);
         ctx.fill();
-    }
-
-    get location() {
-        return this._location;
-    }
-
-    get radius() {
-        return this._radius;
     }
 }
