@@ -2,24 +2,41 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css" type="text/css">
+    <title>Visul</title>
 </head>
 <body>
-<h1>Hello World!</h1>
-We are using node <script>document.write(process.versions.node)</script>,
-Chrome <script>document.write(process.versions.chrome)</script>,
-and Electron <script>document.write(process.versions.electron)</script>.
-<br/>
-<a href="views/attractors/index.html">Attractors</a>
-<br/>
-<a href="views/graphs/index.html">Graphs</a>
-<br/>
-<a href="views/fractals/index.html">Fractals</a>
-<br/>
-<a href="views/images/index.html">Images</a>
-<br/>
-<a href="views/algorithms/index.html">Algorithms</a>
-<br/>
-<a href="views/turing/turing_machine.html">Turing Machine</a>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>VISUL</h1>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <a class="text-primary" href="views/attractors/index.html">Attractors</a>
+                </li>
+                <li class="list-group-item">
+                    <a class="text-primary" href="views/graphs/index.html">Graphs</a>
+                </li>
+                <li class="list-group-item">
+                    <a class="text-primary" href="views/fractals/index.html">Fractals</a>
+                </li>
+                <li class="list-group-item">
+                    <a class="text-primary" href="views/images/index.html">Images</a>
+                </li>
+                <li class="list-group-item">
+                    <a class="text-primary" href="views/algorithms/index.html">Algorithms</a>
+                </li>
+                <li class="list-group-item">
+                    <a class="text-primary" href="views/turing/turing_machine.html">Turing Machine</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="node_modules/jquery/dist/jquery.min.js"></script>
+<script src="node_modules/popper.js/dist/popper.min.js"></script>
+<script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
 </body>
 </html>
