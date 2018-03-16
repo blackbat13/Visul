@@ -10,6 +10,7 @@ class Particle {
         this._radius = 15;
         this._mass = 1;
         this._charge = 10;
+        this._fillColor = "#fff";
     }
 
     get location() {
@@ -26,6 +27,30 @@ class Particle {
 
     get force() {
         return this._force;
+    }
+
+    get speed() {
+        return this._speed;
+    }
+
+    set location(val) {
+        this._location = val;
+    }
+
+    set radius(val) {
+        this._radius = val;
+    }
+
+    set speed(val) {
+        this._speed = val;
+    }
+
+    get fillColor() {
+        return this._fillColor;
+    }
+
+    set fillColor(val) {
+        this._fillColor = val;
     }
 
     getRandomLocation(rect) {
@@ -71,7 +96,7 @@ class Particle {
     }
 
     draw(ctx) {
-        ctx.fillStyle = "#f00";
+        ctx.fillStyle = this._fillColor;
         ctx.beginPath();
         ctx.arc(this.location.intX, this.location.intY, this.radius, 0, 2 * Math.PI);
         ctx.fill();
