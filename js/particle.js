@@ -73,6 +73,11 @@ class Particle {
         this._location.y += this._speed.y;
     }
 
+    update() {
+        this.applyForce();
+        this.move();
+    }
+
     bounce(rect) {
         if(this._location.x < rect.minX) {
             this._location.x = rect.minX + 1;

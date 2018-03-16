@@ -11,6 +11,7 @@ class Brushy {
         this.context = this.canvas.getContext("2d");
         this.backgroundColor = "#fff";
         this.drawingColor = "#000";
+        this.scene = [];
     }
 
     static checkColor(color) {
@@ -354,5 +355,30 @@ class Brushy {
         this.context.fillStyle = Brushy.rgbaToColor(r, g, b, a);
         this.context.fillRect(x, 0, stripeWidth, this.height);
         return true;
+    }
+
+    addToScene(object) {
+        // TODO Check if object is compatible
+        this.scene.push(object);
+    }
+
+    start() {
+        requestAnimationFrame(this._draw.bind(this));
+    }
+
+    _clear() {
+        this.context.fillStyle = this.backgroundColor;
+        this.context.fillRect(0, 0, this.width, this.height);
+    }
+
+    _draw() {
+        requestAnimationFrame(this._draw.bind(this));
+        this._clear();
+
+        for(let i = 0; i < this.scene.length; ++i) {
+            let object = this.scene[i];
+            object.update();
+            object.draw(this.context);
+        }
     }
 }
