@@ -17,7 +17,7 @@
 <form>
     <div>
         <label for="speedInput">Speed</label>
-        <input class="slider" type="range" min="1" max="300" id="speedInput" value="10"/>
+        <input class="slider" type="range" min="1" max="100" id="speedInput" value="10"/>
     </div>
     <div>
         <label for="lengthInput">Length</label>
@@ -50,6 +50,7 @@
 
         function init() {
             prepareVariables();
+            prepareEvents();
             brushy.start(animate);
         }
 
@@ -65,8 +66,23 @@
             prepareParticles();
         }
 
+        function prepareEvents() {
+            $("#speedInput").change($.proxy(function () {
+                let newValue = $("#speedInput").val();
+                while(newValue > brushy.scene.length) {
+                    let particle = new Particle(new Rectangle(0, 0, sizeX, sizeY));
+                    particle.fillColor = "#f00";
+                    particle.shouldBounce = true;
+                    brushy.addToScene(particle);
+                }
+                while(newValue < brushy.scene.length) {
+                    brushy.scene.pop();
+                }
+            }, this));
+        }
+
         function prepareParticles() {
-            for(let i = 0; i < 30; ++i) {
+            for(let i = 0; i < 10; ++i) {
                 let particle = new Particle(new Rectangle(0, 0, sizeX, sizeY));
                 particle.fillColor = "#f00";
                 particle.shouldBounce = true;
