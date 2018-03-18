@@ -11,6 +11,8 @@ class Particle {
         this._mass = 1;
         this._charge = 10;
         this._fillColor = "#fff";
+        this._shouldBounce = false;
+        this._name = "Particle";
     }
 
     get location() {
@@ -51,6 +53,18 @@ class Particle {
 
     set fillColor(val) {
         this._fillColor = val;
+    }
+
+    get shouldBounce() {
+        return this._shouldBounce;
+    }
+
+    set shouldBounce(val) {
+        this._shouldBounce = val;
+    }
+
+    get name() {
+        return this._name;
     }
 
     getRandomLocation(rect) {

@@ -5,6 +5,7 @@
     <title>Magnetic Particles</title>
     <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
     <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="../../js/brushy.js"></script>
     <script src="../../js/point.js"></script>
     <script src="../../js/rectangle.js"></script>
     <script src="../../js/particle.js"></script>
@@ -42,19 +43,14 @@
     jQuery(document).ready(function () {
         let sizeX;
         let sizeY;
-        let centerX;
-        let centerY;
-        let speed;
-        let canvas;
-        let ctx;
         let $canvas;
-        let particles;
+        let brushy;
 
         init();
 
         function init() {
             prepareVariables();
-            requestAnimationFrame(animate);
+            brushy.start(animate);
         }
 
         function prepareVariables() {
@@ -63,83 +59,48 @@
             sizeX -= $("form").width();
             $canvas.width(sizeX);
             sizeY = $canvas.height();
-            centerX = sizeX / 2;
-            centerY = sizeY / 2;
 
-            prepareCanvas();
+            brushy = new Brushy("canvas", sizeX, sizeY);
+
             prepareParticles();
         }
 
-        function prepareCanvas() {
-            canvas = document.getElementById("canvas");
-            canvas.width = sizeX;
-            canvas.height = sizeY;
-            ctx = canvas.getContext("2d");
-            ctx.fillStyle = "#fff";
-            ctx.fillRect(0, 0, sizeX, sizeY);
-        }
-
         function prepareParticles() {
-            particles = [];
-            for(let i = 0; i < 10; ++i) {
+            for(let i = 0; i < 30; ++i) {
                 let particle = new Particle(new Rectangle(0, 0, sizeX, sizeY));
                 particle.fillColor = "#f00";
-                particles.push(particle);
+                particle.shouldBounce = true;
+                brushy.addToScene(particle);
             }
         }
 
         function animate() {
-            requestAnimationFrame(animate);
             resetForces();
             updateForces();
-            updateParticles();
-            containParticles();
-            draw();
         }
 
         function resetForces() {
-            for(let i = 0; i < particles.length; ++i) {
-                particles[i].resetForce();
+            for(let i = 0; i < brushy.scene.length; ++i) {
+                brushy.scene[i].resetForce();
             }
         }
 
         function updateForces() {
-            for(let i = 0; i < particles.length; ++i) {
-                for(let j = i + 1; j < particles.length; ++j) {
-                    let difference = Point.difference(particles[j].location, particles[i].location);
-                    let distance = Point.distance(particles[j].location, particles[i].location);
+            for(let i = 0; i < brushy.scene.length; ++i) {
+                for(let j = i + 1; j < brushy.scene.length; ++j) {
+                    let difference = Point.difference(brushy.scene[j].location, brushy.scene[i].location);
+                    let distance = Point.distance(brushy.scene[j].location, brushy.scene[i].location);
 
                     if(distance === 0) {
                         continue;
                     }
 
-                    let forceVal = -1 * particles[i].charge * particles[j].charge / (distance * distance);
+                    let forceVal = -1 * brushy.scene[i].charge * brushy.scene[j].charge / (distance * distance);
                     forceVal = Math.min(forceVal, 1000);
                     let force = new Point(forceVal * difference.x / distance, forceVal * difference.y / distance);
-                    particles[i].force.add(force);
-                    particles[j].force.substract(force);
+                    brushy.scene[i].force.add(force);
+                    brushy.scene[j].force.substract(force);
                 }
-            }
-        }
-
-        function updateParticles() {
-            for(let i = 0; i < particles.length; ++i) {
-                particles[i].applyForce();
-                particles[i].move();
-            }
-        }
-
-        function containParticles() {
-            for(let i = 0; i < particles.length; ++i) {
-                particles[i].bounce(new Rectangle(0, 0, sizeX, sizeY));
-            }
-        }
-
-        function draw() {
-            ctx.fillStyle = "#000";
-            ctx.fillRect(0, 0, sizeX, sizeY);
-            for(let i=0; i < particles.length; ++i) {
-                particles[i].draw(ctx);
             }
         }
     });
