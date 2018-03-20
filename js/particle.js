@@ -14,7 +14,7 @@ class Particle {
         this._shouldBounce = false;
         this._name = "Particle";
         this._friction = 0;
-        this._maxSpeed = 10;
+        this._maxSpeed = 5;
     }
 
     get location() {

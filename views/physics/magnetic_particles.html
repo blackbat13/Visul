@@ -17,7 +17,7 @@
 <form>
     <div>
         <label for="speedInput">Number of particles</label>
-        <input class="slider" type="range" min="1" max="100" id="speedInput" value="10"/>
+        <input class="slider" type="range" min="1" max="400" id="speedInput" value="10"/>
     </div>
     <div>
         <label for="chargeInput">Charge</label>
@@ -30,6 +30,10 @@
     <div>
         <label for="massInput">Mass</label>
         <input class="slider" type="range" min="1" max="10" id="massInput" value="1" step="1"/>
+    </div>
+    <div>
+        <label for="radiusInput">Radius</label>
+        <input class="slider" type="range" min="1" max="30" id="radiusInput" value="15" step="1"/>
     </div>
     <div>
         <label for="colorInput">Color</label>
@@ -53,6 +57,7 @@
         let sizeY;
         let $canvas;
         let brushy;
+        let opacity = 1;
 
         init();
 
@@ -79,11 +84,12 @@
                 let newValue = $("#speedInput").val();
                 while(newValue > brushy.scene.length) {
                     let particle = new Particle(new Rectangle(0, 0, sizeX, sizeY));
-                    particle.fillColor = Brushy.randomColor();
+                    particle.fillColor = Brushy.randomColorWithOpacity(opacity);
                     particle.shouldBounce = true;
                     particle.friction = $("#frictionInput").val();
                     particle.charge = $("#chargeInput").val();
                     particle.mass = $("#massInput").val();
+                    particle.radius = $("#radiusInput").val();
                     brushy.addToScene(particle);
                 }
                 while(newValue < brushy.scene.length) {
@@ -111,16 +117,24 @@
                     brushy.scene[i].mass = newValue;
                 }
             }, this));
+
+            $("#radiusInput").change($.proxy(function () {
+                let newValue = $("#radiusInput").val();
+                for(let i = 0; i < brushy.scene.length; ++i) {
+                    brushy.scene[i].radius = newValue;
+                }
+            }, this));
         }
 
         function prepareParticles() {
             for(let i = 0; i < 10; ++i) {
                 let particle = new Particle(new Rectangle(0, 0, sizeX, sizeY));
-                particle.fillColor = Brushy.randomColor();
+                particle.fillColor = Brushy.randomColorWithOpacity(opacity);
                 particle.shouldBounce = true;
                 particle.friction = $("#frictionInput").val();
                 particle.charge = $("#chargeInput").val();
                 particle.mass = $("#massInput").val();
+                particle.radius = $("#radiusInput").val();
                 brushy.addToScene(particle);
             }
         }
