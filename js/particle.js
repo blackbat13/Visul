@@ -92,6 +92,23 @@ class Particle {
         this.move();
     }
 
+    applyFriction(friction) {
+        let sign = Math.sign(this._speed.x);
+
+        if(friction > this._speed.x * sign) {
+            this._speed.x = 0;
+        } else {
+            this._speed.x -= friction * sign;
+        }
+
+        sign = Math.sign(this._speed.y);
+        if(friction > this._speed.y * sign) {
+            this._speed.y = 0;
+        } else {
+            this._speed.y -= friction * sign;
+        }
+    }
+
     bounce(rect) {
         if(this._location.x < rect.minX) {
             this._location.x = rect.minX + 1;
