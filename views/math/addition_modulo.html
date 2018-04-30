@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Addition Modulo</title>
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+    <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="../../js/point.js"></script>
+    <script src="../../js/rectangle.js"></script>
+    <script src="../../js/particle.js"></script>
+    <script>if (window.module) module = window.module;</script>
+    <link href="../../css/main.css" type="text/css" rel="stylesheet"/>
+    <link href="../../css/bootstrap.min.css" type="text/css" rel="stylesheet"/>
+    <script src="../../js/bootstrap.min.js"></script>
+</head>
+<body id="fractal_body">
+<canvas id="canvas"></canvas>
+<form>
+    <div>
+        <label for="sizeInput">Size</label>
+        <input class="slider" type="range" min="5" max="300" id="sizeInput" value="100"/>
+    </div>
+    <div>
+        <a class="btn btn-info" href="index.html">Menu</a>
+    </div>
+</form>
+</body>
+<script>
+    jQuery(document).ready(function () {
+        let sizeX;
+        let sizeY;
+        let canvas;
+        let ctx;
+        let $canvas;
+        let length = 100;
+
+        init();
+
+        function init() {
+            prepareVariables();
+            prepareEvents();
+            requestAnimationFrame(animate);
+        }
+
+        function prepareVariables() {
+            $canvas = $("#canvas");
+            sizeX = $canvas.width();
+            sizeX -= $("form").width();
+            $canvas.width(sizeX);
+            sizeY = $canvas.height();
+            prepareCanvas();
+        }
+
+        function prepareCanvas() {
+            canvas = document.getElementById('canvas');
+            canvas.width = sizeX;
+            canvas.height = sizeY;
+            ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, sizeX, sizeY);
+        }
+
+        function prepareEvents() {
+            $("#sizeInput").change($.proxy(function () {
+                length = $("#sizeInput").val();
+            }, this));
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            draw();
+        }
+
+        function draw() {
+            ctx.fillStyle = "#000";
+            ctx.fillRect(0, 0, sizeX, sizeY);
+
+            let size = Math.ceil(sizeX / length);
+
+            for(let i = 0; i < sizeX / length; ++i) {
+                for(let j = 0; j < sizeY; ++j) {
+                    let x = i * length;
+                    let y = j * length;
+                    let val = (i+1) + (j+1);
+                    val %= size;
+                    let r, g ,b;
+                    r = Math.floor(255 * val / size);
+                    g = 0;
+                    b = 255 - r;
+                    ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
+                    ctx.fillRect(x, y, length, length);
+                }
+            }
+        }
+    });
+</script>
+</html>
