@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Random path</title>
+    <title>Random sowing</title>
     <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
     <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
     <script src="../../js/brushy.js"></script>
@@ -53,27 +53,23 @@
 
 <script>
     jQuery(document).ready(function () {
-        var sizeX;
-        var sizeY;
-        var centerX;
-        var centerY;
-        var scale;
-        var x;
-        var y;
-        var a;
-        var b;
-        var c;
-        var d;
-        var speed;
-        var color;
-        var backgroundColor;
-        var stop;
-        var pixels;
-        var percent;
-        var canvas;
-        var ctx;
-        var examples;
-        var opacity;
+        let sizeX;
+        let sizeY;
+        let centerX;
+        let centerY;
+        let scale;
+        let x;
+        let y;
+        let speed;
+        let color;
+        let backgroundColor;
+        let stop;
+        let pixels;
+        let percent;
+        let canvas;
+        let ctx;
+        let examples;
+        let opacity;
         let randomColor = false;
         let moveLength = 1;
 
@@ -95,8 +91,8 @@
             centerX = sizeX / 2;
             centerY = sizeY / 2;
             scale = sizeX / 6;
-            x = centerX;
-            y = centerY;
+            x = Math.round(centerX);
+            y = Math.round(centerY);
             speed = 1000;
             color = 0xff0000;
             backgroundColor = "#000000";
@@ -212,7 +208,6 @@
                     continue;
                 }
 
-
                 let val = pixels[xn][yn];
                 let rgb = hex2rgb(color);
 
@@ -230,7 +225,7 @@
                 x = xn;
                 y = yn;
 
-                pixels[x][y] = pixels[x][y] < 20 ? pixels[x][y] + 1 : 0;
+                pixels[x][y] = pixels[x][y] < 5 ? pixels[x][y] + 1 : 0;
             }
         }
 
