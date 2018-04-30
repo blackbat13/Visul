@@ -14,6 +14,10 @@ class Brushy {
         this._scene = [];
         this.animateFun = null;
         this._clear();
+        this._history = [];
+        this._maxHistoryLength = 10;
+        this._historyClock = 0;
+        this._historyTick = 1;
     }
 
     static checkColor(color) {
@@ -97,14 +101,19 @@ class Brushy {
     static colorToRgba(color) {
         let r, g, b, a;
 
-        let colorArray = color.split("rgba(,)");
+        let colorArray = color.split(",");
 
-        r = parseInt(colorArray[0]);
+        r = parseInt(colorArray[0].replace('rgba(', ''));
         g = parseInt(colorArray[1]);
         b = parseInt(colorArray[2]);
-        a = parseFloat(colorArray[3]);
+        a = parseFloat(colorArray[3].replace(')', ''));
 
         return {r: r, g: g, b: b, a: a};
+    }
+
+    static setOpacity(color, opacity) {
+        let rgba = Brushy.colorToRgba(color);
+        return Brushy.rgbaToColor(rgba.r, rgba.g, rgba.b, opacity);
     }
 
     /**
@@ -175,6 +184,12 @@ class Brushy {
         }
 
         return Brushy.rgbaToColor(Brushy.randomColorValue(), Brushy.randomColorValue(), Brushy.randomColorValue(), opacity);
+    }
+
+    static randomHexColor() {
+        let colors = [];
+        colors.push(0x69D2E7, 0xA7DBDB, 0xE0E4CC, 0xF38630, 0xFA6900, 0xE94C6F, 0xFDF200, 0x28ABE3, 0x1FDA9A, 0xE8B71A, 0xDB3340, 0x008BBA, 0x00C8F8, 0xE1D041, 0x75EB00, 0x53BBF4, 0xFF85CB);
+        return colors[Math.round(Math.random() * colors.length)];
     }
 
     // Public methods
@@ -383,6 +398,11 @@ class Brushy {
         this.animateFun();
         this._clear();
 
+        // this._updateHistory();
+        // TODO Remove old entries from history
+
+        // this._drawHistory();
+
         for(let i = 0; i < this._scene.length; ++i) {
             let object = this._scene[i];
             object.update();
@@ -390,6 +410,48 @@ class Brushy {
                 object.bounce(new Rectangle(0, 0, this.width, this.height));
             }
             object.draw(this.context);
+        }
+    }
+
+    _updateHistory() {
+        this._historyClock++;
+        this._historyClock %= this._historyTick;
+        if(this._historyClock > 0) {
+            return;
+        }
+
+        if(this._history.length < this._maxHistoryLength) {
+            this._history.push(this._getSceneCopy());
+            return;
+        }
+
+        for(let i = 0; i < this._history.length - 1; ++i) {
+            this._history[i] = this._history[i+1];
+        }
+
+        this._history[this._history.length - 1] = this._getSceneCopy();
+    }
+
+    _getSceneCopy() {
+        let copy = [];
+        for(let i = 0; i < this._scene.length; ++i) {
+            let object = this._scene[i];
+            let clone = object.clone();
+            // let clone = jQuery.extend(true, {}, this._scene[i]);
+            copy.push(clone);
+
+        }
+
+        return copy;
+    }
+
+    _drawHistory() {
+        for(let i = 0; i < this._history.length; ++i) {
+            for(let j = 0; j < this._history[i].length; ++j) {
+                let object = this._history[i][j];
+                object.fillColor = Brushy.setOpacity(object.fillColor, 0.05);
+                object.draw(this.context);
+            }
         }
     }
 }

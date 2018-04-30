@@ -31,6 +31,7 @@ class Attractor {
         this.values = [];
         this.examples = [];
         this.opacity = 0.05;
+        this.randomColor = false;
         this.prepareCoordinates();
         this.prepareColors();
         this.prepareScale();
@@ -95,6 +96,10 @@ class Attractor {
         $("#opacityInput").bind('input', $.proxy(function () {
             this.opacity = $("#opacityInput").val();
             $("#opacityValue").html(this.opacity);
+        }, this));
+
+        $('#randomColorInput').change($.proxy(function(){
+            this.randomColor = !this.randomColor;
         }, this));
 
         $("#clearButton").click($.proxy(function () {

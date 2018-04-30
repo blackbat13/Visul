@@ -168,4 +168,12 @@ class Particle {
         ctx.arc(this.location.intX, this.location.intY, this.radius, 0, 2 * Math.PI);
         ctx.fill();
     }
+
+    clone() {
+        let newParticle = new Particle(new Rectangle(0,0,0,0));
+        newParticle.location = this._location.clone();
+        newParticle.radius = this._radius;
+        newParticle.fillColor = this._fillColor;
+        return newParticle;
+    }
 }

@@ -3,12 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Martins Mapping</title>
-    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+    <script>if (typeof module === 'object') {
+        window.module = module;
+        module = undefined;
+    }</script>
     <script src="../../js/jquery-3.2.1.min.js"></script>
     <script src="../../js/attractor.js"></script>
     <script src="../../js/martins_mapping.js"></script>
+    <script src="../../js/brushy.js"></script>
     <script>if (window.module) module = window.module;</script>
     <link href="../../css/main.css" type="text/css" rel="stylesheet"/>
+    <link href="../../css/bootstrap.min.css" type="text/css" rel="stylesheet"/>
+    <script src="../../js/bootstrap.min.js"></script>
 </head>
 <body id="fractal_body">
 <canvas id="canvas"></canvas>
@@ -49,6 +55,12 @@
         <label for="opacityInput">Intensity: <span id="opacityValue">0.05</span></label>
         <input class="slider" type="range" min="0.01" max="1" id="opacityInput" value="0.05" step="0.01"/>
     </div>
+    <div class="form-check">
+        <label class="form-check-label">
+            <input class="form-check-input" type="checkbox" id="randomColorInput">
+            Random color
+        </label>
+    </div>
     <div>
         <label for="examples">Examples</label>
         <select name="examples" id="examples">
@@ -66,7 +78,8 @@
     </div>
     <hr>
     <div>
-        <p>x<sub>n+1</sub> = y<sub>n</sub> - sgn(x<sub>n</sub>) * |<span class="bVar"></span>*x<sub>n</sub>-<span class="cVar"></span>|<sup>(<span class="pVar"></span>/<span class="dVar"></span>)</sup></p>
+        <p>x<sub>n+1</sub> = y<sub>n</sub> - sgn(x<sub>n</sub>) * |<span class="bVar"></span>*x<sub>n</sub>-<span
+                class="cVar"></span>|<sup>(<span class="pVar"></span>/<span class="dVar"></span>)</sup></p>
         <p>y<sub>n+1</sub> = <span class="aVar"></span> - x<sub>n</sub></p>
     </div>
     <div>

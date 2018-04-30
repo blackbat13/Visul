@@ -75,4 +75,9 @@ class Point {
         let dif = this.difference(p1, p2);
         return Math.sqrt(dif.x * dif.x + dif.y * dif.y);
     }
+
+    clone() {
+        let newPoint = new Point(this._x, this._y);
+        return newPoint;
+    }
 }
