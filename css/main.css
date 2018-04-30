@@ -194,3 +194,10 @@ input[type=range]:focus::-ms-fill-upper {
     background: #545a5a;
 }
 
+.btn {
+    width: 100%;
+}
+
+.form-check-input {
+    margin-top: -2px !important;
+}

@@ -27,6 +27,8 @@ class MartinsMapping extends Attractor {
         }
 
         let xn, yn;
+        let color = Brushy.randomHexColor();
+
         for (let i = 0; i < this.speed; ++i) {
             xn = this.y - this.sgn(this.x) * Math.pow((Math.abs(this.values[1]*this.x-this.values[2])), this.values[4]/this.values[3]);
             yn = this.values[0] - this.x;
@@ -40,9 +42,15 @@ class MartinsMapping extends Attractor {
 
             let val = this.pixels[cx][cy];
             let rgb = this.hex2rgb(this.color);
+
+            if(this.randomColor) {
+                rgb = this.hex2rgb(color);
+            }
+
             rgb[0] -= rgb[0] * val * this.percent > 0 ? rgb[0] * val * this.percent : 0;
             rgb[1] -= rgb[1] * val * this.percent > 0 ? rgb[1] * val * this.percent : 0;
             rgb[2] -= rgb[2] * val * this.percent > 0 ? rgb[2] * val * this.percent : 0;
+
 
             this.ctx.fillStyle = "rgba(" + rgb[0] * 255 + "," + rgb[1] * 255 + "," + rgb[2] * 255 + "," + this.opacity + ")";
             this.ctx.fillRect(cx, cy, 1, 1);

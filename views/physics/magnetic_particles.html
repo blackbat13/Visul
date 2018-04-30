@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Magnetic Particles</title>
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+    <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="../../js/brushy.js"></script>
+    <script src="../../js/point.js"></script>
+    <script src="../../js/rectangle.js"></script>
+    <script src="../../js/particle.js"></script>
+    <script>if (window.module) module = window.module;</script>
+    <link href="../../css/main.css" type="text/css" rel="stylesheet"/>
+    <link href="../../css/bootstrap.min.css" type="text/css" rel="stylesheet"/>
+    <script src="../../js/bootstrap.min.js"></script>
+</head>
+<body id="fractal_body">
+<canvas id="canvas"></canvas>
+<form>
+    <div>
+        <label for="speedInput">Number of particles</label>
+        <input class="slider" type="range" min="1" max="400" id="speedInput" value="10"/>
+    </div>
+    <div>
+        <label for="chargeInput">Charge</label>
+        <input class="slider" type="range" min="1" max="100" id="chargeInput" value="10" step="1"/>
+    </div>
+    <div>
+        <label for="frictionInput">Friction</label>
+        <input class="slider" type="range" min="0" max="0.1" id="frictionInput" value="0" step="0.000001"/>
+    </div>
+    <div>
+        <label for="massInput">Mass</label>
+        <input class="slider" type="range" min="1" max="10" id="massInput" value="1" step="1"/>
+    </div>
+    <div>
+        <label for="radiusInput">Radius</label>
+        <input class="slider" type="range" min="1" max="30" id="radiusInput" value="15" step="1"/>
+    </div>
+    <div class="form-check">
+        <label class="form-check-label">
+            <input class="form-check-input" type="checkbox" id="showArrowsInput">
+            Show arrows
+        </label>
+    </div>
+</form>
+</body>
+<script>
+    jQuery(document).ready(function () {
+        let sizeX;
+        let sizeY;
+        let $canvas;
+        let brushy;
+        let opacity = 1;
+        let showArrows = false;
+
+        init();
+
+        function init() {
+            prepareVariables();
+            prepareEvents();
+            brushy.start(animate);
+        }
+
+        function prepareVariables() {
+            $canvas = $("#canvas");
+            sizeX = $canvas.width();
+            sizeX -= $("form").width();
+            $canvas.width(sizeX);
+            sizeY = $canvas.height();
+
+            brushy = new Brushy("canvas", sizeX, sizeY);
+
+            prepareParticles();
+        }
+
+        function prepareEvents() {
+            $("#speedInput").change($.proxy(function () {
+                let newValue = $("#speedInput").val();
+                while(newValue > brushy.scene.length) {
+                    let particle = new Particle(new Rectangle(0, 0, sizeX, sizeY));
+                    particle.fillColor = Brushy.randomColorWithOpacity(opacity);
+                    particle.shouldBounce = true;
+                    particle.friction = $("#frictionInput").val();
+                    particle.charge = $("#chargeInput").val();
+                    particle.mass = $("#massInput").val();
+                    particle.radius = $("#radiusInput").val();
+                    particle.showArrow = showArrows;
+                    brushy.addToScene(particle);
+                }
+                while(newValue < brushy.scene.length) {
+                    brushy.scene.pop();
+                }
+            }, this));
+
+            $("#frictionInput").change($.proxy(function () {
+                let newValue = $("#frictionInput").val();
+                for(let i = 0; i < brushy.scene.length; ++i) {
+                    brushy.scene[i].friction = newValue;
+                }
+            }, this));
+
+            $("#chargeInput").change($.proxy(function () {
+                let newValue = $("#chargeInput").val();
+                for(let i = 0; i < brushy.scene.length; ++i) {
+                    brushy.scene[i].charge = newValue;
+                }
+            }, this));
+
+            $("#massInput").change($.proxy(function () {
+                let newValue = $("#massInput").val();
+                for(let i = 0; i < brushy.scene.length; ++i) {
+                    brushy.scene[i].mass = newValue;
+                }
+            }, this));
+
+            $("#radiusInput").change($.proxy(function () {
+                let newValue = $("#radiusInput").val();
+                for(let i = 0; i < brushy.scene.length; ++i) {
+                    brushy.scene[i].radius = newValue;
+                }
+            }, this));
+
+            $("#showArrowsInput").change($.proxy(function () {
+                showArrows = !showArrows;
+                for(let i = 0; i < brushy.scene.length; ++i) {
+                    brushy.scene[i].showArrow = showArrows;
+                }
+            }, this));
+        }
+
+        function prepareParticles() {
+            for(let i = 0; i < 10; ++i) {
+                let particle = new Particle(new Rectangle(0, 0, sizeX, sizeY));
+                particle.fillColor = Brushy.randomColorWithOpacity(opacity);
+                particle.shouldBounce = true;
+                particle.friction = $("#frictionInput").val();
+                particle.charge = $("#chargeInput").val();
+                particle.mass = $("#massInput").val();
+                particle.radius = $("#radiusInput").val();
+                brushy.addToScene(particle);
+            }
+        }
+
+        function animate() {
+            resetForces();
+            updateForces();
+        }
+
+        function resetForces() {
+            for(let i = 0; i < brushy.scene.length; ++i) {
+                brushy.scene[i].resetForce();
+            }
+        }
+
+        function updateForces() {
+            for(let i = 0; i < brushy.scene.length; ++i) {
+                for(let j = i + 1; j < brushy.scene.length; ++j) {
+                    let difference = Point.difference(brushy.scene[j].location, brushy.scene[i].location);
+                    let distance = Point.distance(brushy.scene[j].location, brushy.scene[i].location);
+
+                    if(distance === 0) {
+                        continue;
+                    }
+
+                    let forceVal = -1 * brushy.scene[i].charge * brushy.scene[j].charge / (distance * distance);
+                    forceVal = Math.min(forceVal, 1000);
+                    let force = new Point(forceVal * difference.x / distance, forceVal * difference.y / distance);
+                    brushy.scene[i].force.add(force);
+                    brushy.scene[j].force.substract(force);
+                }
+            }
+        }
+    });
+</script>
+</html>

@@ -9,6 +9,8 @@
     <script src="../../js/dejong_attractor.js"></script>
     <script>if (window.module) module = window.module;</script>
     <link href="../../css/main.css" type="text/css" rel="stylesheet"/>
+    <link href="../../css/bootstrap.min.css" type="text/css" rel="stylesheet"/>
+    <script src="../../js/bootstrap.min.js"></script>
 </head>
 <body id="fractal_body">
 <canvas id="canvas"></canvas>
@@ -51,10 +53,10 @@
         </select>
     </div>
     <div>
-        <button id="clearButton">Clear</button>
+        <button class="btn btn-lg btn-primary" id="clearButton">Clear</button>
     </div>
     <div>
-        <button id="stopButton">Stop</button>
+        <button class="btn btn-lg btn-primary" id="stopButton">Stop</button>
     </div>
     <div>
         <p>x<sub>n+1</sub> = sin(a * y<sub>n</sub>) - cos(b * x<sub>n</sub>)</p>
@@ -66,7 +68,7 @@
         <p>y<sub>n+1</sub> = sin(<span class="bVar"></span> * x<sub>n</sub>) - cos(<span class="dVar"></span> * y<sub>n</sub>)</p>
     </div>
     <div>
-        <a href="index.html">Menu</a>
+        <a class="btn btn-info" href="index.html">Menu</a>
     </div>
 </form>
 </body>
