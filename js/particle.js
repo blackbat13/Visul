@@ -15,6 +15,7 @@ class Particle {
         this._name = "Particle";
         this._friction = 0;
         this._maxSpeed = 5;
+        this._showArrow = false;
     }
 
     get location() {
@@ -87,6 +88,10 @@ class Particle {
 
     set friction(val) {
         this._friction = val;
+    }
+
+    set showArrow(val) {
+        this._showArrow = val;
     }
 
     getRandomLocation(rect) {
@@ -164,8 +169,51 @@ class Particle {
 
     draw(ctx) {
         ctx.fillStyle = this._fillColor;
+        ctx.strokeStyle = this._fillColor;
         ctx.beginPath();
         ctx.arc(this.location.intX, this.location.intY, this.radius, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.strokeStyle = this._fillColor;
+
+        if (!this._showArrow) {
+            return;
+        }
+
+        // Source: https://stackoverflow.com/questions/808826/draw-arrow-on-canvas-tag
+
+        let fromx = this.location.x;
+        let fromy = this.location.y;
+        let tox = this.location.x + this.speed.x * 30;
+        let toy = this.location.y + this.speed.y * 30;
+
+        let headlen = 10;
+        let angle = Math.atan2(toy-fromy,tox-fromx);
+
+        //starting path of the arrow from the start square to the end square and drawing the stroke
+        ctx.beginPath();
+        ctx.moveTo(fromx, fromy);
+        ctx.lineTo(tox, toy);
+        // ctx.strokeStyle = "#cc0000";
+        // ctx.lineWidth = 22;
+        ctx.stroke();
+
+        //starting a new path from the head of the arrow to one of the sides of the point
+        ctx.beginPath();
+        ctx.moveTo(tox, toy);
+        ctx.lineTo(tox-headlen*Math.cos(angle-Math.PI/7),toy-headlen*Math.sin(angle-Math.PI/7));
+
+        //path from the side point of the arrow, to the other side point
+        ctx.lineTo(tox-headlen*Math.cos(angle+Math.PI/7),toy-headlen*Math.sin(angle+Math.PI/7));
+
+        //path from the side point back to the tip of the arrow, and then again to the opposite side point
+        ctx.lineTo(tox, toy);
+        ctx.lineTo(tox-headlen*Math.cos(angle-Math.PI/7),toy-headlen*Math.sin(angle-Math.PI/7));
+
+        //draws the paths created above
+        // ctx.strokeStyle = "#cc0000";
+        // ctx.lineWidth = 22;
+        ctx.stroke();
+        // ctx.fillStyle = "#cc0000";
         ctx.fill();
     }
 
