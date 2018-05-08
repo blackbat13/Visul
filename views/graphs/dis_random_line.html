@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Random sowing</title>
+    <title>Disappearing random line</title>
     <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
     <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
     <script src="../../js/brushy.js"></script>
@@ -16,7 +16,7 @@
 <form>
     <div>
         <label for="speedInput">Speed</label>
-        <input class="slider" type="range" min="1" max="1000" id="speedInput" value="1000"/>
+        <input class="slider" type="range" min="1" max="200" id="speedInput" value="100"/>
     </div>
     <div>
         <label for="lengthInput">Length</label>
@@ -41,9 +41,6 @@
         </label>
     </div>
     <div>
-        <button class="btn btn-lg btn-primary" id="clearButton">Clear</button>
-    </div>
-    <div>
         <button class="btn btn-lg btn-primary" id="stopButton">Stop</button>
     </div>
     <div>
@@ -57,22 +54,20 @@
         let sizeY;
         let centerX;
         let centerY;
-        let scale;
         let x;
         let y;
         let speed;
         let color;
         let backgroundColor;
         let stop;
-        let pixels;
-        let percent;
         let canvas;
         let ctx;
-        let examples;
         let opacity;
         let randomColor = false;
         let moveLength = 1;
         let points;
+        let colors;
+        let noDraws = 2;
 
         init();
 
@@ -80,7 +75,6 @@
             prepareVariables();
             setSliders();
             prepareEvents();
-            clearPixelsArray();
             requestAnimationFrame(draw);
         }
 
@@ -91,18 +85,19 @@
             sizeY = $("#canvas").height();
             centerX = sizeX / 2;
             centerY = sizeY / 2;
-            scale = sizeX / 6;
-            x = Math.round(centerX);
-            y = Math.round(centerY);
-            speed = 1000;
+            x = [];
+            y = [];
+            for(let j = 0; j < noDraws; ++j) {
+                x.push(Math.round(centerX));
+                y.push(Math.round(centerY));
+            }
+            speed = 100;
             color = 0xff0000;
             backgroundColor = "#000000";
             stop = false;
-            pixels = [];
-            percent = 5 / 100;
-            examples = [];
             opacity = 0.05;
             points = [];
+            colors = [];
             prepareCanvas();
         }
 
@@ -129,7 +124,6 @@
 
             $("#backgroundColorInput").change(function () {
                 backgroundColor = $("#backgroundColorInput").val();
-                clearPixelsArray();
                 ctx.fillStyle = backgroundColor;
                 ctx.fillRect(0, 0, sizeX, sizeY);
             });
@@ -137,14 +131,6 @@
             $("#opacityInput").bind('input', function () {
                 opacity = $("#opacityInput").val();
                 $("#opacityValue").html(opacity);
-            });
-
-            $("#clearButton").click(function () {
-                clearPixelsArray();
-
-                ctx.fillStyle = backgroundColor;
-                ctx.fillRect(0, 0, sizeX, sizeY);
-                return false;
             });
 
             $("#stopButton").click(function () {
@@ -171,15 +157,6 @@
             $("#opacityInput").val(opacity);
         }
 
-        function clearPixelsArray() {
-            for (let i = 0; i < sizeX; ++i) {
-                pixels[i] = [];
-                for (let j = 0; j < sizeY; ++j) {
-                    pixels[i][j] = 0;
-                }
-            }
-        }
-
         function prepareCanvas() {
             canvas = document.getElementById("canvas");
             canvas.width = sizeX;
@@ -202,35 +179,52 @@
                 values.push(i);
             }
 
-            let rColor = Brushy.randomHexColor();
-            for (let i = 0; i < speed; ++i) {
-                xn = x + values[Math.round(Math.random() * (values.length - 1))];
-                yn = y + values[Math.round(Math.random() * (values.length - 1))];
-                if (xn < 0 || yn < 0 || xn > sizeX - 10 || yn > sizeY - 10) {
-                    continue;
+            for(let j = 0; j < noDraws; ++j) {
+                if(points[j] === null || points[j] === undefined) {
+                    points[j] = [];
+                    colors[j] = [];
                 }
-
-                points.push({x: xn, y: yn});
-                if (points.length === 4) {
-                    let rgb = hex2rgb(color);
-                    if(randomColor) {
-                        rgb = hex2rgb(rColor);
+                let rColor = Brushy.randomHexColor();
+                for (let i = 0; i < speed; ++i) {
+                    xn = x[j] + values[Math.round(Math.random() * (values.length - 1))];
+                    yn = y[j] + values[Math.round(Math.random() * (values.length - 1))];
+                    if (xn < 0 || yn < 0 || xn > sizeX - 10 || yn > sizeY - 10) {
+                        continue;
                     }
+
+                    points[j].push({x: xn, y: yn});
+                    if (randomColor) {
+                        colors[j].push(rColor);
+                    } else {
+                        colors[j].push(color);
+                    }
+
+                    while (points[j].length > speed * 30) {
+                        points[j].shift();
+                        colors[j].shift();
+                    }
+
+                    x[j] = xn;
+                    y[j] = yn;
+                }
+            }
+
+            actualDraw();
+        }
+
+        function actualDraw() {
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(0, 0, sizeX, sizeY);
+            for(let j = 0; j < noDraws; ++j) {
+                for (let i = 3; i < points[j].length; ++i) {
+                    let rgb = hex2rgb(colors[j][i]);
 
                     ctx.strokeStyle = "rgba(" + rgb[0] * 255 + "," + rgb[1] * 255 + "," + rgb[2] * 255 + "," + opacity + ")";
                     ctx.beginPath();
-                    ctx.moveTo(points[0].x, points[0].y);
-                    ctx.bezierCurveTo(points[1].x, points[1].y, points[2].x, points[2].y, points[3].x, points[3].y);
+                    ctx.moveTo(points[j][i - 3].x, points[j][i - 3].y);
+                    ctx.bezierCurveTo(points[j][i - 2].x, points[j][i - 2].y, points[j][i - 1].x, points[j][i - 1].y, points[j][i].x, points[j][i].y);
                     ctx.stroke();
-                    for (let j = 0; j < 3; ++j) {
-                        points[j] = points[j + 1];
-                    }
-
-                    points.pop();
                 }
-
-                x = xn;
-                y = yn;
             }
         }
 

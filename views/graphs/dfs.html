@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Martins Mapping</title>
     <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
-    <script src="../../js/jquery-3.2.1.min.js"></script>
+    <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
     <script>if (window.module) module = window.module;</script>
     <link href="../../css/main.css" type="text/css" rel="stylesheet"/>
 </head>
@@ -184,8 +184,7 @@
                 ctx.fillStyle = backgroundColor;
                 ctx.fillRect(0, 0, sizeX, sizeY);
                 dfsStack = [];
-//                dfsStack.push({x: 0, y: 0, fromX: 0, fromY: 0, distance: 0});
-                dfsStack.push({x: sizeX/2, y: sizeY/2, fromX: sizeX/2, fromY: sizeY/2, distance: 0});
+                dfsStack.push({x: Math.round(sizeX/2), y: Math.round(sizeY/2), fromX: Math.round(sizeX/2), fromY: Math.round(sizeY/2), distance: 0});
                 prepareVisited();
                 stop = false;
                 return false;
@@ -266,19 +265,14 @@
                 colorChangeCount++;
                 var rnd;
                 var currentPoint = dfsStack.pop();
-                if(visited[currentPoint.x][currentPoint.y] == true) {
+                if(visited[Math.round(currentPoint.x)][Math.round(currentPoint.y)] == true) {
                     continue;
                 }
-                visited[currentPoint.x][currentPoint.y] = true;
+                visited[Math.round(currentPoint.x)][Math.round(currentPoint.y)] = true;
 
                 var distance = currentPoint.distance;
                 distance = Math.round(distance/(sizeX/moveLength));
                 distance = distance%256 + 1;
-//                distance = 10*distance/((sizeX/moveLength)*(sizeY/moveLength));
-//                console.log(distance);
-
-//                ctx.strokeStyle = "rgba(" + (distance%8) * 32 + "," + (distance%16) * 16 + "," + (distance%33) * 8 + "," + opacity + ")";
-//                ctx.strokeStyle = "rgba(" + Math.round(distance*255) + "," + 0 + "," + 0 + "," + opacity + ")";
 
                 ctx.moveTo(currentPoint.fromX, currentPoint.fromY);
                 let xGreater = currentPoint.x > currentPoint.fromX ? 1 : -1;
@@ -290,11 +284,10 @@
 
                 var possibleLine = [];
                 for (let j = 0; j < moves.length; ++j) {
-                    xn = currentPoint.x + moves[j].x * moveLength;
-                    yn = currentPoint.y + moves[j].y * moveLength;
+                    xn = Math.round(currentPoint.x + moves[j].x * moveLength);
+                    yn = Math.round(currentPoint.y + moves[j].y * moveLength);
                     if (xn >= 0 && yn >= 0 && xn <= sizeX && yn <= sizeY && visited[xn][yn] != true) {
                         possibleLine.push({x: xn, y: yn});
-//                        visited[xn][yn] = true;
                         dfsStack.push({x: xn, y: yn, fromX: currentPoint.x, fromY: currentPoint.y, distance: currentPoint.distance+1});
                     }
                 }
