@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Martins Mapping</title>
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+    <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
+    <script>if (window.module) module = window.module;</script>
+    <link href="../../css/main.css" type="text/css" rel="stylesheet"/>
+</head>
+<body id="fractal_body">
+<canvas id="canvas"></canvas>
+<form>
+    <div>
+        <label for="speedInput">Speed</label>
+        <input class="slider" type="range" min="2" max="100" id="speedInput" value="10"/>
+    </div>
+    <div>
+        <label for="lengthInput">Length</label>
+        <input class="slider" type="range" min="4" max="100" id="lengthInput" value="10"/>
+    </div>
+    <div>
+        <label for="colorInput">Color</label>
+        <input type="color" id="colorInput" value="#ffffff"/>
+    </div>
+    <div>
+        <label for="opacityInput">Intensity: <span id="opacityValue">1</span></label>
+        <input class="slider" type="range" min="0.01" max="1" id="opacityInput" value="1" step="0.01"/>
+    </div>
+    <div>
+        <label for="changeColorInput">Change color</label>
+        <input type="checkbox" id="changeColorInput" />
+    </div>
+    <div>
+        <button id="clearButton">Clear</button>
+    </div>
+    <div>
+        <a href="index.html">Menu</a>
+    </div>
+</form>
+</body>
+<script>
+    jQuery(document).ready(function () {
+        let sizeX;
+        let sizeY;
+        let centerX;
+        let centerY;
+        let x;
+        let y;
+        let speed;
+        let color;
+        let backgroundColor;
+        let stop;
+        let pixels;
+        let percent;
+        let canvas;
+        let ctx;
+        let opacity;
+        let changeColor = false;
+
+        let colors;
+
+        let beginRadius;
+        let change;
+        let difference;
+
+        init();
+
+        function init() {
+            prepareVariables();
+            prepareEvents();
+            requestAnimationFrame(draw);
+        }
+
+        function prepareVariables() {
+            sizeX = $("#canvas").width();
+            sizeX -= $("form").width();
+            $("#canvas").width(sizeX);
+            sizeY = $("#canvas").height();
+            centerX = sizeX / 2;
+            centerY = sizeY / 2;
+            x = 0;
+            y = 0;
+            speed = 10;
+            color = 0xffffff;
+            backgroundColor = "#000000";
+            stop = false;
+            pixels = [];
+            percent = 5 / 100;
+            opacity = 1;
+
+            colors = ['#000', '#fff', '#f00', '#0f0', '#00f'];
+
+            beginRadius = Math.sqrt(centerX * centerX + centerY * centerY) + 5;
+            change = 0;
+            difference = 20;
+
+            prepareCanvas();
+        }
+
+        function prepareEvents() {
+            $("#speedInput").change(function () {
+                speed = parseInt($("#speedInput").val());
+            });
+
+            $("#lengthInput").change(function () {
+                moveLength = parseInt($("#lengthInput").val());
+            });
+
+            $("#colorInput").change(function () {
+                let tmp = $("#colorInput").val();
+                tmp = tmp.replace("#", "");
+                tmp = parseInt(tmp, 16);
+                color = tmp;
+            });
+
+            $("#backgroundColorInput").change(function () {
+                backgroundColor = $("#backgroundColorInput").val();
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(0, 0, sizeX, sizeY);
+            });
+
+            $("#changeColorInput").change(function() {
+                changeColor = !changeColor;
+                if(!changeColor) {
+                    let tmp = $("#colorInput").val();
+                    tmp = tmp.replace("#", "");
+                    tmp = parseInt(tmp, 16);
+                    color = tmp;
+                }
+            });
+
+            $("#opacityInput").bind('input', function () {
+                opacity = parseFloat($("#opacityInput").val());
+                $("#opacityValue").html(opacity);
+            });
+
+            $("#clearButton").click(function () {
+                stop = true;
+                // ctx.fillStyle = backgroundColor;
+                // ctx.fillRect(0, 0, sizeX, sizeY);
+                stop = false;
+                return false;
+            });
+
+            $("#stopButton").click(function () {
+                stop = !stop;
+
+                if (stop) {
+                    $("#stopButton").html("Start");
+                } else {
+                    $("#stopButton").html("Stop");
+                }
+                return false;
+            });
+        }
+
+        function prepareCanvas() {
+            canvas = document.getElementById("canvas");
+            canvas.width = sizeX;
+            canvas.height = sizeY;
+            ctx = canvas.getContext("2d");
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(0, 0, sizeX, sizeY);
+        }
+
+        function draw() {
+            requestAnimationFrame(draw);
+            if (stop) {
+                return;
+            }
+
+            let radius = beginRadius + change;
+            change += 1;
+            change %= difference * 2;
+            let i = 0;
+            while(radius > 0) {
+                let color = '#000';
+                if(i % 2) {
+                    color = "#fff";
+                }
+
+                i++;
+
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(centerX, centerX, radius, 0, 2 * Math.PI);
+                ctx.fill();
+
+                radius -= difference;
+            }
+        }
+
+        function hex2rgb(hex) {
+            let rgb = [];
+            rgb[0] = (hex >> 16 & 255) / 255;
+            rgb[1] = (hex >> 8 & 255) / 255;
+            rgb[2] = (255 & hex) / 255;
+            return rgb;
+        }
+    });
+</script>
+</html>
