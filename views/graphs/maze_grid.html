@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Martins Mapping</title>
     <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
-    <script src="../../js/jquery-3.2.1.min.js"></script>
+    <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
     <script>if (window.module) module = window.module;</script>
     <link href="../../css/main.css" type="text/css" rel="stylesheet"/>
 </head>
@@ -135,7 +135,7 @@
         }
 
         function prepareGridVariables() {
-            gridSizeX = 50;
+            gridSizeX = 20;
             fieldWidth = sizeX / gridSizeX;
             fieldHeight = fieldWidth;
             gridSizeY = Math.floor(sizeY / fieldHeight);
