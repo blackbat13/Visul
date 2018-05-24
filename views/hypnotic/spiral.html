@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Martins Mapping</title>
-    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+    <title>Hypnotic Spiral</title>
+    <script>if (typeof module === 'object') {
+        window.module = module;
+        module = undefined;
+    }</script>
     <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
     <script>if (window.module) module = window.module;</script>
     <link href="../../css/main.css" type="text/css" rel="stylesheet"/>
@@ -29,7 +32,7 @@
     </div>
     <div>
         <label for="changeColorInput">Change color</label>
-        <input type="checkbox" id="changeColorInput" />
+        <input type="checkbox" id="changeColorInput"/>
     </div>
     <div>
         <button id="clearButton">Clear</button>
@@ -92,8 +95,9 @@
             colors = ['#000', '#fff', '#f00', '#0f0', '#00f'];
 
             beginRadius = Math.sqrt(centerX * centerX + centerY * centerY) + 5;
+            beginRadius = 50;
             change = 0;
-            difference = 20;
+            difference = 0;
 
             prepareCanvas();
         }
@@ -120,9 +124,9 @@
                 ctx.fillRect(0, 0, sizeX, sizeY);
             });
 
-            $("#changeColorInput").change(function() {
+            $("#changeColorInput").change(function () {
                 changeColor = !changeColor;
-                if(!changeColor) {
+                if (!changeColor) {
                     let tmp = $("#colorInput").val();
                     tmp = tmp.replace("#", "");
                     tmp = parseInt(tmp, 16);
@@ -170,25 +174,69 @@
                 return;
             }
 
-            let radius = beginRadius + change;
-            change += 1;
-            change %= difference * 2;
-            let i = 0;
-            while(radius > 0) {
-                let color = '#000';
-                if(i % 2) {
-                    color = "#fff";
+            let radius = beginRadius;
+            // difference += 1;
+            // difference %= 20;
+
+            // radius = 50;
+
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, sizeX, sizeY);
+
+            let change = 1;
+            let x = 0 + difference;
+            difference += 1;
+            difference %= radius * 4;
+
+            x = 0;
+            for(let i = 0; i < difference; ++i) {
+                x += change;
+                if (x > radius) {
+                    change = -1;
+                } else if (x < -radius) {
+                    change = 1;
+                }
+            }
+
+            while (radius < 500) {
+
+                for (let i = 0; i < 20; ++i) {
+                    x += change;
+
+                    let y = Math.sqrt((radius) * (radius) - x * x);
+                    if (change < 0) {
+                        y *= -1;
+                    }
+
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(x + centerX, y + centerY, 1, 1);
+                    if (x > radius) {
+                        change = -1;
+                    } else if (x < -radius) {
+                        change = 1;
+                    }
                 }
 
-                i++;
 
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-                ctx.fill();
-
-                radius -= difference;
+                radius += 1;
             }
+
+
+            // while(radius > 0) {
+            //     let color = '#000';
+            //     if(i % 2) {
+            //         color = "#fff";
+            //     }
+            //
+            //     i++;
+            //
+            //     ctx.fillStyle = color;
+            //     ctx.beginPath();
+            //     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            //     ctx.fill();
+            //
+            //     radius -= difference;
+            // }
         }
 
         function hex2rgb(hex) {

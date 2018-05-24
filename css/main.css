@@ -92,6 +92,11 @@ form select {
     height: 100vh;
 }
 
+#box-canvas {
+    width: 70%;
+    height: 100vh;
+}
+
 form div {
     margin: 10px 0;
 }
@@ -200,4 +205,10 @@ input[type=range]:focus::-ms-fill-upper {
 
 .form-check-input {
     margin-top: -2px !important;
+}
+
+.box {
+    float: left;
+    float: bottom;
+    border: 1px black solid;
 }
