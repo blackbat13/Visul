@@ -15,30 +15,12 @@
 <div id="box-canvas"></div>
 <form>
     <div>
-        <label for="speedInput">Speed</label>
-        <input class="slider" type="range" min="2" max="100" id="speedInput" value="10"/>
+        <h1>Działania</h1>
+        <div id="moves"></div>
     </div>
     <div>
-        <label for="lengthInput">Length</label>
-        <input class="slider" type="range" min="4" max="100" id="lengthInput" value="10"/>
-    </div>
-    <div>
-        <label for="colorInput">Color</label>
-        <input type="color" id="colorInput" value="#ffffff"/>
-    </div>
-    <div>
-        <label for="opacityInput">Intensity: <span id="opacityValue">1</span></label>
-        <input class="slider" type="range" min="0.01" max="1" id="opacityInput" value="1" step="0.01"/>
-    </div>
-    <div>
-        <label for="changeColorInput">Change color</label>
-        <input type="checkbox" id="changeColorInput"/>
-    </div>
-    <div>
-        <button id="clearButton">Clear</button>
-    </div>
-    <div>
-        <a href="index.html">Menu</a>
+        <h1>Stos</h1>
+        <div id="stack"></div>
     </div>
 </form>
 </body>
@@ -48,6 +30,9 @@
         let graph = [];
         let count = [];
         let graphSize = 5;
+        let stack = [];
+        let $stack = $('#stack');
+        let $moves = $('#moves');
 
         for (let i = 0; i < graphSize; ++i) {
             graph[i] = [];
@@ -78,7 +63,7 @@
             for (let i = 0; i < graphSize; ++i) {
                 for (let j = 0; j < graphSize; ++j) {
                     if (graph[i][j] === 1) {
-                        $('#box' + i).append('<div data-number="'+j+'" id="box' + j + '" class="box" style="width: ' + 99 / count[i] + '%; height: 80%; background-color: red;"></div>');
+                        $('#box' + i).append('<div data-number="'+j+'" id="box' + j + '" class="box" style="width: ' + 99 / count[i] + '%; height: 80%;"></div>');
                     }
                 }
             }
@@ -102,15 +87,41 @@
 
         let click = false;
 
+        function updateStackDiv() {
+            $stack.empty();
+            for(let i = 0; i < stack.length; ++i) {
+                $stack.prepend('<p>Pudełko ' + stack[i] + '</p>');
+            }
+        }
+
+        function addOpenMove(number) {
+            $moves.append('<p>Otwórz pudełko ' + number + '</p>');
+        }
+
+        function addCloseMove(number) {
+            $moves.append('<p>Zamknij pudełko ' + number + '</p>');
+        }
+
         function addClickEvents() {
             for (let i = 0; i < graphSize; ++i) {
                 $('#box' + i).click(function() {
                     let number = parseInt($(this).attr('data-number'));
-                    for(let j = 0; j < graphSize; ++j) {
-                        if(graph[number][j] === 1) {
-                            $('#box' + j).css('visibility', 'visible');
-                        }
+                    let parentNumber = parseInt($(this).parent('div').attr('data-number'));
+
+                    if(stack.length === 0 || stack[stack.length - 1] === parentNumber) {
+                        stack.push(number);
+                        $(this).children('div').css('visibility', 'visible');
+                        updateStackDiv();
+                        addOpenMove(number);
+                        click = false;
+                        return;
+                    } else if(stack.length > 0 && stack[stack.length - 1] === number) {
+
+                    } else {
+                        return;
                     }
+
+
 
                     if(count[number] === 0 && !click) {
                         for(let j = 0; j < graphSize; ++j) {
@@ -119,9 +130,11 @@
                                 break;
                             }
                         }
-                        $(this).remove();
+                        $(this).addClass('hidden');
                         click = true;
-
+                        stack.pop();
+                        updateStackDiv();
+                        addCloseMove(number);
                     } else {
                         click = false;
                     }
