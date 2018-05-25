@@ -229,11 +229,11 @@ input[type=range]:focus::-ms-fill-upper {
 }
 
 .open {
-    background-color: aqua;
+    /*opacity: 0.5;*/
 }
 
 .closed {
-    background-color: blanchedalmond;
+    opacity: 1;
 }
 
 #stack p:first-child {
