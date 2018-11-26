@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Martins Mapping</title>
-    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+    <script>if (typeof module === 'object') {
+        window.module = module;
+        module = undefined;
+    }</script>
     <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
     <script>if (window.module) module = window.module;</script>
     <link href="../../css/main.css" type="text/css" rel="stylesheet"/>
@@ -37,32 +40,21 @@
 </body>
 <script>
     jQuery(document).ready(function () {
-        var sizeX;
-        var sizeY;
-        var centerX;
-        var centerY;
-        var scale;
-        var x;
-        var y;
-        var a;
-        var b;
-        var c;
-        var d;
-        var p;
-        var speed;
-        var color;
-        var backgroundColor;
-        var stop;
-        var pixels;
-        var percent;
-        var canvas;
-        var ctx;
-        var examples;
-        var opacity;
-        var visited;
-        var dfsStack;
-        var moves;
-        var moveLength;
+        let sizeX;
+        let sizeY;
+        let x;
+        let y;
+        let speed;
+        let color;
+        let backgroundColor;
+        let stop;
+        let canvas;
+        let ctx;
+        let examples;
+        let opacity;
+        let visited;
+        let dfsStack;
+        let moveLength;
 
         init();
 
@@ -70,7 +62,6 @@
             prepareVariables();
             setSliders();
             prepareEvents();
-            clearPixelsArray();
             requestAnimationFrame(draw);
         }
 
@@ -79,27 +70,18 @@
             sizeX -= $("form").width();
             $("#canvas").width(sizeX);
             sizeY = $("#canvas").height();
-            centerX = sizeX / 2;
-            centerY = sizeY / 2;
-            scale = 5;
             x = 0;
             y = 0;
             speed = 1;
             color = 0x00ff00;
             backgroundColor = "#000000";
             stop = false;
-            pixels = [];
-            percent = 5 / 100;
             opacity = 0.5;
-            examples = [];
             visited = [];
             dfsStack = [];
             dfsStack.push({x: 0, y: 0, width: sizeX, height: sizeY});
-            moves = [{x: -1, y: 0}, {x: 1, y: 0}, {x: 0, y: -1}, {x: 0, y: 1}];
-//            moves = [{x: -1, y: -1}, {x: -1, y: 1}, {x: 1, y: 1}, {x: 1, y: -1}];
             moveLength = 15;
             prepareVisited();
-            prepareExamples();
             prepareCanvas();
         }
 
@@ -136,7 +118,7 @@
             });
 
             $("#colorInput").change(function () {
-                var tmp = $("#colorInput").val();
+                let tmp = $("#colorInput").val();
                 tmp = tmp.replace("#", "");
                 tmp = parseInt(tmp, 16);
                 color = tmp;
@@ -176,27 +158,18 @@
             });
 
             $("#examples").change(function () {
-                var selectedIndex = $('select[name=examples]').val();
-                if (selectedIndex == -1) {
+                let selectedIndex = $('select[name=examples]').val();
+                if (selectedIndex === -1) {
                     return;
                 }
 
-                var selectedExample = examples[selectedIndex];
+                let selectedExample = examples[selectedIndex];
 
                 opacity = selectedExample.opacity;
                 setSlidersValues();
                 setSlidersLabelsValues();
                 setFormulaVariables();
             });
-        }
-
-        function clearPixelsArray() {
-            for (var i = 0; i <= sizeX; ++i) {
-                pixels[i] = [];
-                for (var j = 0; j <= sizeY; ++j) {
-                    pixels[i][j] = 0;
-                }
-            }
         }
 
         function prepareCanvas() {
@@ -208,42 +181,31 @@
             ctx.fillRect(0, 0, sizeX, sizeY);
         }
 
-        function sgn(a) {
-            if (a < 0) {
-                return -1;
-            } else {
-                return 1;
-            }
-        }
-
         function draw() {
             requestAnimationFrame(draw);
-            if (stop || dfsStack.length == 0) {
+            if (stop || dfsStack.length === 0) {
                 return;
             }
 
-            var xn, yn;
-            var rgb = hex2rgb(color);
+            let xn, yn;
+            let rgb = hex2rgb(color);
             ctx.fillStyle = color;
             ctx.strokeStyle = "rgba(" + rgb[0] * 255 + "," + rgb[1] * 255 + "," + rgb[2] * 255 + "," + opacity + ")";
             ctx.lineWidth = 2;
             ctx.beginPath();
-            var offset = 20;
+            let offset = 20;
 
-            for (var i = 0; i < speed && dfsStack.length > 0 && !stop; ++i) {
-                var rnd;
-                var currentRectangle = dfsStack.pop();
-
-//                console.log(currentRectangle);
-                if(currentRectangle.width <= offset  || currentRectangle.height <= offset) {
+            for (let i = 0; i < speed && dfsStack.length > 0 && !stop; ++i) {
+                let rnd;
+                let currentRectangle = dfsStack.pop();
+                if (currentRectangle.width <= offset || currentRectangle.height <= offset) {
                     continue;
                 }
 
                 rnd = Math.round(Math.random() * 100);
-//                rnd = 1;
-                if(rnd <= 50) { // vertical
+                if (rnd <= 50) { // vertical
                     rnd = Math.random() * (currentRectangle.width - offset);
-                    xn = currentRectangle.x + rnd + offset/2;
+                    xn = currentRectangle.x + rnd + offset / 2;
                     rnd = Math.random() * (currentRectangle.height - moveLength - offset);
                     yn = currentRectangle.y + rnd + offset / 2;
                     ctx.moveTo(xn, currentRectangle.y);
@@ -251,11 +213,21 @@
                     ctx.moveTo(xn, yn + moveLength);
                     ctx.lineTo(xn, currentRectangle.y + currentRectangle.height);
                     ctx.stroke();
-                    dfsStack.push({x: currentRectangle.x, y: currentRectangle.y, width: xn - currentRectangle.x, height: currentRectangle.height});
-                    dfsStack.push({x: xn, y: currentRectangle.y, width: currentRectangle.x + currentRectangle.width - xn, height: currentRectangle.height});
+                    dfsStack.push({
+                        x: currentRectangle.x,
+                        y: currentRectangle.y,
+                        width: xn - currentRectangle.x,
+                        height: currentRectangle.height
+                    });
+                    dfsStack.push({
+                        x: xn,
+                        y: currentRectangle.y,
+                        width: currentRectangle.x + currentRectangle.width - xn,
+                        height: currentRectangle.height
+                    });
                 } else { // horizontal
                     rnd = Math.random() * (currentRectangle.height - offset);
-                    yn = currentRectangle.y + rnd + offset/2;
+                    yn = currentRectangle.y + rnd + offset / 2;
                     rnd = Math.random() * (currentRectangle.width - moveLength - offset);
                     xn = currentRectangle.x + rnd + offset / 2;
                     ctx.moveTo(currentRectangle.x, yn);
@@ -263,32 +235,29 @@
                     ctx.moveTo(xn + moveLength, yn);
                     ctx.lineTo(currentRectangle.x + currentRectangle.width, yn);
                     ctx.stroke();
-//                    console.log(yn);
-                    dfsStack.push({x: currentRectangle.x, y: currentRectangle.y, width: currentRectangle.width, height: yn - currentRectangle.y});
-                    dfsStack.push({x: currentRectangle.x, y: yn, width: currentRectangle.width, height: currentRectangle.y + currentRectangle.height - yn});
+                    dfsStack.push({
+                        x: currentRectangle.x,
+                        y: currentRectangle.y,
+                        width: currentRectangle.width,
+                        height: yn - currentRectangle.y
+                    });
+                    dfsStack.push({
+                        x: currentRectangle.x,
+                        y: yn,
+                        width: currentRectangle.width,
+                        height: currentRectangle.y + currentRectangle.height - yn
+                    });
                 }
 
             }
-
-//            if(dfsStack.length == 0) {
-//                dfsStack.push({x: moveLength/2, y: 0, fromX: moveLength/2, fromY: 0});
-//            }
         }
 
         function hex2rgb(hex) {
-            var rgb = [];
+            let rgb = [];
             rgb[0] = (hex >> 16 & 255) / 255;
             rgb[1] = (hex >> 8 & 255) / 255;
             rgb[2] = (255 & hex) / 255;
             return rgb;
-        }
-
-        function prepareExamples() {
-
-
-            for (var i = 0; i < examples.length; ++i) {
-                $("#examples").append("<option value='" + i + "'>" + examples[i].name + "</option>");
-            }
         }
     });
 </script>
