@@ -46,20 +46,15 @@
     jQuery(document).ready(function () {
         let sizeX;
         let sizeY;
-        let centerX;
-        let centerY;
-        let scale;
         let x;
         let y;
         let speed;
         let color;
         let backgroundColor;
         let stop;
-        let pixels;
         let percent;
         let canvas;
         let ctx;
-        let examples;
         let opacity;
         let visited;
         let bfsQueue;
@@ -77,7 +72,6 @@
             prepareVariables();
             setSliders();
             prepareEvents();
-            clearPixelsArray();
             requestAnimationFrame(draw);
         }
 
@@ -86,19 +80,14 @@
             sizeX -= $("form").width();
             $("#canvas").width(sizeX);
             sizeY = $("#canvas").height();
-            centerX = sizeX / 2;
-            centerY = sizeY / 2;
-            scale = 5;
             x = 0;
             y = 0;
             speed = 10;
             color = 0xffffff;
             backgroundColor = "#000000";
             stop = false;
-            pixels = [];
             percent = 5 / 100;
             opacity = 1;
-            examples = [];
             visited = [];
             bfsQueue = [];
             bfsQueue.push({x: sizeX / 2, y: sizeY / 2, fromX: sizeX / 2, fromY: sizeY / 2, distance: 0});
@@ -108,7 +97,6 @@
             moveLength = 15;
             currentIndex = 0;
             prepareVisited();
-            prepareExamples();
             prepareCanvas();
         }
 
@@ -127,7 +115,6 @@
         function setSliders() {
             setSlidersValues();
             setSlidersLabelsValues();
-            setFormulaVariables();
         }
 
         function setSlidersValues() {
@@ -136,9 +123,6 @@
 
         function setSlidersLabelsValues() {
             $("#opacityValue").html(opacity);
-        }
-
-        function setFormulaVariables() {
         }
 
         function prepareEvents() {
@@ -200,29 +184,6 @@
                 }
                 return false;
             });
-
-            $("#examples").change(function () {
-                let selectedIndex = $('select[name=examples]').val();
-                if (selectedIndex === -1) {
-                    return;
-                }
-
-                let selectedExample = examples[selectedIndex];
-
-                opacity = selectedExample.opacity;
-                setSlidersValues();
-                setSlidersLabelsValues();
-                setFormulaVariables();
-            });
-        }
-
-        function clearPixelsArray() {
-            for (let i = 0; i <= sizeX; ++i) {
-                pixels[i] = [];
-                for (let j = 0; j <= sizeY; ++j) {
-                    pixels[i][j] = 0;
-                }
-            }
         }
 
         function prepareCanvas() {
@@ -232,14 +193,6 @@
             ctx = canvas.getContext("2d");
             ctx.fillStyle = backgroundColor;
             ctx.fillRect(0, 0, sizeX, sizeY);
-        }
-
-        function sgn(a) {
-            if (a < 0) {
-                return -1;
-            } else {
-                return 1;
-            }
         }
 
         function draw() {
@@ -334,12 +287,6 @@
             rgb[1] = (hex >> 8 & 255) / 255;
             rgb[2] = (255 & hex) / 255;
             return rgb;
-        }
-
-        function prepareExamples() {
-            for (let i = 0; i < examples.length; ++i) {
-                $("#examples").append("<option value='" + i + "'>" + examples[i].name + "</option>");
-            }
         }
     });
 </script>
