@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Magnetic Particles</title>
+    <script>if (typeof module === 'object') {
+        window.module = module;
+        module = undefined;
+    }</script>
+    <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
+    <script>if (window.module) module = window.module;</script>
+    <link href="../../css/main.css" type="text/css" rel="stylesheet"/>
+    <link href="../../node_modules/bootstrap/dist/css/bootstrap.min.css" type="text/css" rel="stylesheet"/>
+    <script src="../../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+</head>
+<body id="fractal_body">
+<canvas id="canvas"></canvas>
+<form>
+    <div>
+        <label for="speedInput">Number of particles</label>
+        <input class="slider" type="range" min="1" max="400" id="speedInput" value="10"/>
+    </div>
+    <div>
+        <label for="radiusInput">Radius</label>
+        <input class="slider" type="range" min="1" max="30" id="radiusInput" value="15" step="1"/>
+    </div>
+</form>
+</body>
+<script>
+    jQuery(document).ready(function () {
+        let sizeX;
+        let sizeY;
+        let $canvas;
+        let brushy;
+        let opacity = 1;
+        let ctx;
+        let canvas;
+        let distance = 30;
+        let angle = 0;
+        let radius = 30;
+
+        init();
+
+        function init() {
+            prepareVariables();
+            prepareEvents();
+            requestAnimationFrame(draw);
+        }
+
+        function prepareVariables() {
+            $canvas = $("#canvas");
+            sizeX = $canvas.width();
+            sizeX -= $("form").width();
+            $canvas.width(sizeX);
+            sizeY = $canvas.height();
+            prepareCanvas();
+        }
+
+        function prepareCanvas() {
+            canvas = document.getElementById("canvas");
+            canvas.width = sizeX;
+            canvas.height = sizeY;
+            ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, sizeX, sizeY);
+        }
+
+        function prepareEvents() {
+            $("#speedInput").change($.proxy(function () {
+                let newValue = $("#speedInput").val();
+            }, this));
+
+            $("#radiusInput").change($.proxy(function () {
+                let newValue = $("#radiusInput").val();
+                for (let i = 0; i < brushy.scene.length; ++i) {
+                    brushy.scene[i].radius = newValue;
+                }
+            }, this));
+        }
+
+        // Converts from degrees to radians.
+        Math.radians = function (degrees) {
+            return degrees * Math.PI / 180;
+        };
+
+        // Converts from radians to degrees.
+        Math.degrees = function (radians) {
+            return radians * 180 / Math.PI;
+        };
+
+        function draw() {
+            requestAnimationFrame(draw);
+
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, sizeX, sizeY);
+            ctx.fillStyle = "#000";
+            for (let cx = distance; cx < sizeX; cx += distance) {
+                for (let cy = distance; cy < sizeY; cy += distance) {
+                    let x_distance = cx / distance;
+                    let y_distance = cy / distance;
+                    let n_angle = angle + 10 * x_distance + 10 * y_distance;
+                    n_angle %= 360;
+                    let x = cx + radius * Math.cos(Math.radians(n_angle));
+                    let y = cy + radius * Math.sin(Math.radians(n_angle));
+                    ctx.beginPath();
+                    ctx.arc(x, y, 5, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+            }
+
+            angle += 3;
+            angle %= 360;
+        }
+    });
+</script>
+</html>
