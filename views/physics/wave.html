@@ -37,9 +37,10 @@
         let $canvas;
         let ctx;
         let canvas;
-        let distance = 30;
+        let distance = 20;
         let angle = 0;
         let radius = 30;
+        let pointRadius = 2;
         let a, b;
 
         init();
@@ -101,7 +102,9 @@
             ctx.fillRect(0, 0, sizeX, sizeY);
             ctx.fillStyle = "#000";
             let offset = distance * 10;
+
             offset = 0;
+            ctx.beginPath();
             for (let cx = -offset; cx < sizeX + offset; cx += distance) {
                 for (let cy = -offset; cy < sizeY + offset; cy += distance) {
                     let x_distance = cx / distance;
@@ -110,14 +113,13 @@
                     n_angle %= 360;
                     let x = cx + radius * a * Math.cos(Math.radians(n_angle));
                     let y = cy + radius * b * Math.sin(Math.radians(n_angle));
+                    ctx.moveTo(x,y);
+                    ctx.arc(x, y, pointRadius, 0, 2 * Math.PI);
 
-                    //console.log(ctx.fillStyle);
-                    ctx.beginPath();
-                    //ctx.fillStyle = "rgb(" + (5*x_distance%256) + ", " + (5*y_distance%256) + ", " + 8*(x_distance+y_distance)%256+")";
-                    ctx.arc(x, y, 5, 0, 2 * Math.PI);
-                    ctx.fill();
                 }
             }
+
+            ctx.fill();
 
             angle += 3;
             angle %= 360;
