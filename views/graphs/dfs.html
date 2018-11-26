@@ -41,36 +41,31 @@
 </body>
 <script>
     jQuery(document).ready(function () {
-        var sizeX;
-        var sizeY;
-        var centerX;
-        var centerY;
-        var scale;
-        var x;
-        var y;
-        var a;
-        var b;
-        var c;
-        var d;
-        var p;
-        var speed;
-        var color;
-        var backgroundColor;
-        var stop;
-        var pixels;
-        var percent;
-        var canvas;
-        var ctx;
-        var examples;
-        var opacity;
-        var visited;
-        var dfsStack;
-        var moves;
-        var moveLength;
-        var colorsArray;
-        var colorIndex;
-        var changeColor = false;
-        var colorChangeCount = 0;
+        let sizeX;
+        let sizeY;
+        let centerX;
+        let centerY;
+        let scale;
+        let x;
+        let y;
+        let speed;
+        let color;
+        let backgroundColor;
+        let stop;
+        let pixels;
+        let percent;
+        let canvas;
+        let ctx;
+        let examples;
+        let opacity;
+        let visited;
+        let dfsStack;
+        let moves;
+        let moveLength;
+        let colorsArray;
+        let colorIndex;
+        let changeColor = false;
+        let colorChangeCount = 0;
 
         init();
 
@@ -106,7 +101,6 @@
             moves = [{x: -1, y: 0}, {x: 1, y: 0}, {x: 0, y: -1}, {x: 0, y: 1}];
             colorsArray = [0xff0000, 0x00ff00, 0x0000ff, 0xb00b00,  0xde1e7e, 0xe1e100, 0xBADA55, 0xF0FEAF, 0xac1d1c, 0xfacade, 0xc2e9fb, 0x96e6a1, 0xf68084, 0xfee140, 0x3cba92];
             colorIndex = -1;
-//            moves = [{x: -1, y: -1}, {x: -1, y: 1}, {x: 1, y: 1}, {x: 1, y: -1}];
             moveLength = 15;
             prepareVisited();
             prepareExamples();
@@ -152,7 +146,7 @@
             });
 
             $("#colorInput").change(function () {
-                var tmp = $("#colorInput").val();
+                let tmp = $("#colorInput").val();
                 tmp = tmp.replace("#", "");
                 tmp = parseInt(tmp, 16);
                 color = tmp;
@@ -167,7 +161,7 @@
             $("#changeColorInput").change(function() {
                 changeColor = !changeColor;
                 if(!changeColor) {
-                    var tmp = $("#colorInput").val();
+                    let tmp = $("#colorInput").val();
                     tmp = tmp.replace("#", "");
                     tmp = parseInt(tmp, 16);
                     color = tmp;
@@ -202,12 +196,12 @@
             });
 
             $("#examples").change(function () {
-                var selectedIndex = $('select[name=examples]').val();
-                if (selectedIndex == -1) {
+                let selectedIndex = $('select[name=examples]').val();
+                if (selectedIndex === -1) {
                     return;
                 }
 
-                var selectedExample = examples[selectedIndex];
+                let selectedExample = examples[selectedIndex];
 
                 opacity = selectedExample.opacity;
                 setSlidersValues();
@@ -217,9 +211,9 @@
         }
 
         function clearPixelsArray() {
-            for (var i = 0; i <= sizeX; ++i) {
+            for (let i = 0; i <= sizeX; ++i) {
                 pixels[i] = [];
-                for (var j = 0; j <= sizeY; ++j) {
+                for (let j = 0; j <= sizeY; ++j) {
                     pixels[i][j] = 0;
                 }
             }
@@ -244,7 +238,7 @@
 
         function draw() {
             requestAnimationFrame(draw);
-            if (stop || dfsStack.length == 0) {
+            if (stop || dfsStack.length === 0) {
                 return;
             }
 
@@ -254,23 +248,23 @@
                 color = getNextColor();
             }
 
-            var xn, yn;
-            var rgb = hex2rgb(color);
+            let xn, yn;
+            let rgb = hex2rgb(color);
             ctx.fillStyle = color;
             ctx.strokeStyle = "rgba(" + rgb[0] * 255 + "," + rgb[1] * 255 + "," + rgb[2] * 255 + "," + opacity + ")";
             ctx.lineWidth = moveLength / 2;
             ctx.beginPath();
 
-            for (var i = 0; i < speed && dfsStack.length > 0 && !stop; ++i) {
+            for (let i = 0; i < speed && dfsStack.length > 0 && !stop; ++i) {
                 colorChangeCount++;
-                var rnd;
-                var currentPoint = dfsStack.pop();
-                if(visited[Math.round(currentPoint.x)][Math.round(currentPoint.y)] == true) {
+                let rnd;
+                let currentPoint = dfsStack.pop();
+                if(visited[Math.round(currentPoint.x)][Math.round(currentPoint.y)] === true) {
                     continue;
                 }
                 visited[Math.round(currentPoint.x)][Math.round(currentPoint.y)] = true;
 
-                var distance = currentPoint.distance;
+                let distance = currentPoint.distance;
                 distance = Math.round(distance/(sizeX/moveLength));
                 distance = distance%256 + 1;
 
@@ -282,36 +276,29 @@
                 ctx.lineTo(currentPoint.x + xEqual * xGreater * (moveLength/4), currentPoint.y + yEqual * yGreater * (moveLength/4));
                 ctx.stroke();
 
-                var possibleLine = [];
+                let possibleLine = [];
                 for (let j = 0; j < moves.length; ++j) {
                     xn = Math.round(currentPoint.x + moves[j].x * moveLength);
                     yn = Math.round(currentPoint.y + moves[j].y * moveLength);
-                    if (xn >= 0 && yn >= 0 && xn <= sizeX && yn <= sizeY && visited[xn][yn] != true) {
+                    if (xn >= 0 && yn >= 0 && xn <= sizeX && yn <= sizeY && visited[xn][yn] !== true) {
                         possibleLine.push({x: xn, y: yn});
                         dfsStack.push({x: xn, y: yn, fromX: currentPoint.x, fromY: currentPoint.y, distance: currentPoint.distance+1});
                     }
                 }
 
-                if (possibleLine.length == 0) {
+                if (possibleLine.length === 0) {
                     continue;
                 }
 
                 rnd = Math.floor(Math.random() * possibleLine.length);
                 xn = possibleLine[rnd].x;
                 yn = possibleLine[rnd].y;
-//                ctx.moveTo(currentPoint.x, currentPoint.y);
-//                ctx.lineTo(xn, yn);
-//                ctx.stroke();
                 dfsStack.push({x: xn, y: yn, fromX: currentPoint.x, fromY: currentPoint.y, distance: currentPoint.distance+1});
             }
-
-//            if(dfsStack.length == 0) {
-//                dfsStack.push({x: moveLength/2, y: 0, fromX: moveLength/2, fromY: 0});
-//            }
         }
 
         function hex2rgb(hex) {
-            var rgb = [];
+            let rgb = [];
             rgb[0] = (hex >> 16 & 255) / 255;
             rgb[1] = (hex >> 8 & 255) / 255;
             rgb[2] = (255 & hex) / 255;
@@ -319,9 +306,7 @@
         }
 
         function prepareExamples() {
-
-
-            for (var i = 0; i < examples.length; ++i) {
+            for (let i = 0; i < examples.length; ++i) {
                 $("#examples").append("<option value='" + i + "'>" + examples[i].name + "</option>");
             }
         }
