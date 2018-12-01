@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Jumping Square</title>
+    <script>if (typeof module === 'object') {
+        window.module = module;
+        module = undefined;
+    }</script>
+    <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
+    <script>if (window.module) module = window.module;</script>
+    <link href="../../css/main.css" type="text/css" rel="stylesheet"/>
+    <script src="../../node_modules/two.js/build/two.min.js"></script>
+</head>
+<body id="fractal_body">
+<div id="canvas"></div>
+<form>
+    <div>
+        <label for="speedInput">Speed</label>
+        <input class="slider" type="range" min="2" max="100" id="speedInput" value="10"/>
+    </div>
+    <div>
+        <label for="lengthInput">Length</label>
+        <input class="slider" type="range" min="4" max="100" id="lengthInput" value="10"/>
+    </div>
+    <div>
+        <label for="colorInput">Color</label>
+        <input type="color" id="colorInput" value="#ffffff"/>
+    </div>
+    <div>
+        <label for="opacityInput">Intensity: <span id="opacityValue">1</span></label>
+        <input class="slider" type="range" min="0.01" max="1" id="opacityInput" value="1" step="0.01"/>
+    </div>
+    <div>
+        <label for="changeColorInput">Change color</label>
+        <input type="checkbox" id="changeColorInput"/>
+    </div>
+    <div>
+        <button id="clearButton">Clear</button>
+    </div>
+    <div>
+        <a href="index.html">Menu</a>
+    </div>
+</form>
+</body>
+<script>
+    jQuery(document).ready(function () {
+        let sizeX;
+        let sizeY;
+        let angle = 0;
+
+        init();
+
+        function init() {
+            prepareVariables();
+        }
+
+
+        function prepareVariables() {
+            sizeX = $("#canvas").width();
+            sizeX -= $("form").width();
+            $("#canvas").width(sizeX);
+            sizeY = $("#canvas").height();
+            let elem = document.getElementById('canvas');
+            let two = new Two({width: sizeX, height: sizeY}).appendTo(elem);
+
+            let grid = [];
+            let squareSize = 80;
+            for (let x = 0; x <= sizeX; x += squareSize) {
+                for (let y = 0; y <= sizeY; y += squareSize) {
+                    let i = y / squareSize;
+                    let j = x / squareSize;
+                    if ((i + j) % 2 !== 0) {
+                        continue;
+                    }
+                    let rect = two.makeRoundedRectangle(x, y, squareSize, squareSize, 0);
+
+                    if (grid[i] === undefined) {
+                        grid[i] = [];
+                    }
+
+
+                    // if(i % 2 === 0) {
+                    //     rect.fill = '#0f0';
+                    // } else {
+                    //     rect.fill = '#f00';
+                    // }
+                    rect.fill = '#000';
+
+                    grid[i][j] = rect;
+                }
+            }
+
+            for (let x = 0; x <= sizeX; x += squareSize) {
+                for (let y = 0; y <= sizeY; y += squareSize) {
+                    let i = y / squareSize;
+                    let j = x / squareSize;
+                    if ((i + j) % 2 === 0) {
+                        continue;
+                    }
+                    let rect = two.makeRoundedRectangle(x, y, squareSize, squareSize, 0);
+
+                    if (grid[i] === undefined) {
+                        grid[i] = [];
+                    }
+
+
+
+                    rect.fill = '#fff';
+
+
+                    grid[i][j] = rect;
+                }
+            }
+
+            // Converts from degrees to radians.
+            Math.radians = function (degrees) {
+                return degrees * Math.PI / 180;
+            };
+
+            // Converts from radians to degrees.
+            Math.degrees = function (radians) {
+                return radians * 180 / Math.PI;
+            };
+
+            let movesCount = 0;
+            let currentShift = 0;
+            let shifting = [];
+            let b = 10;
+            let move = squareSize/b;
+            let wait = 0;
+            shifting[0] = {'x': move, 'y':0, 'rot': 90/b};
+            shifting[1] = {'x': 0, 'y':move, 'rot': 90/b};
+            shifting[2] = {'x': -move, 'y':0, 'rot': 90/b};
+            shifting[3] = {'x': 0, 'y':-move, 'rot': 90/b};
+
+            // Converts from degrees to radians.
+            Math.radians = function (degrees) {
+                return degrees * Math.PI / 180;
+            };
+
+            // Converts from radians to degrees.
+            Math.degrees = function (radians) {
+                return radians * 180 / Math.PI;
+            };
+
+            two.bind('update', function (frameCount) {
+                let w = sizeX / squareSize;
+                let h = sizeY / squareSize;
+                if(wait < 0) {
+                    wait += 1;
+                    return;
+                }
+                movesCount += 1;
+                for (let i = 0; i < h; i++) {
+                    for (let j = 0; j < w; j++) {
+                        if ((i + j) % 2 !== 0) {
+                            continue;
+                        }
+                        grid[i][j].translation.x += shifting[currentShift].x;
+                        grid[i][j].translation.y += shifting[currentShift].y;
+                        //grid[i][j].rotation += Math.radians(shifting[currentShift].rot);
+
+                    }
+                }
+
+                if(movesCount >= squareSize/move) {
+                    movesCount = 0;
+                    currentShift += 1;
+                    currentShift %= shifting.length;
+                    wait = -30;
+                }
+
+            }).play();
+        }
+    });
+</script>
+</html>
