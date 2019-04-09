@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<video id="video" width="640" height="480" autoplay></video>
+<button id="snap">Snap Photo</button>
+<canvas id="canvas" width="640" height="480"></canvas>
+</body>
+<script>
+    // Grab elements, create settings, etc.
+    var video = document.getElementById('video');
+
+    // Get access to the camera!
+    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        // Not adding `{ audio: true }` since we only want video now
+        navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+            //video.src = window.URL.createObjectURL(stream);
+            video.srcObject = stream;
+            video.play();
+        });
+    }
+
+    // Elements for taking the snapshot
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+    let width = 640;
+    let height = 480;
+    let maxDistance = 20;
+    let data;
+
+    // Trigger photo take
+    document.getElementById("snap").addEventListener("click", function() {
+        //context.drawImage(video, 0, 0, 640, 480);
+        //circles();
+        animate();
+    });
+
+    function animate() {
+        window.requestAnimationFrame(animate);
+        context.drawImage(video, 0, 0, 640, 480);
+        circles();
+    }
+
+    function getPixel(x, y) {
+        let pixel = [];
+        let index = (y * width + x) * 4;
+        for(let k = 0; k < 3; k++) {
+            pixel[k] = data[index + k];
+        }
+        return pixel;
+    }
+    
+    function circles() {
+        data = context.getImageData(0, 0, width, height).data;
+        for(let i = 0; i < 10000; i++) {
+            let x = Math.round(Math.random() * width);
+            let y = Math.round(Math.random() * height);
+            let distance = Math.round(Math.random() * maxDistance * 2 - maxDistance);
+            let nx = x + distance;
+            let ny = y + distance;
+            if(nx < 0 || ny < 0 || nx >= width || ny >= height) {
+                continue;
+            }
+            let pixel1 = getPixel(x, y);
+            let pixel2 = getPixel(nx, ny);
+            let npixel = [];
+            for(let k = 0; k < 3; k++) {
+                npixel[k] = Math.round((pixel1[k] + pixel2[k]) / 2);
+            }
+
+            context.fillStyle = "rgb(" + npixel[0] + "," + npixel[1] + "," + npixel[2] + ")";
+            context.beginPath();
+            context.ellipse(x + distance/2, y + distance/2, Math.abs(distance), Math.abs(distance), 0, 0, 360);
+            context.fill();
+        }
+    }
+</script>
+</html>
