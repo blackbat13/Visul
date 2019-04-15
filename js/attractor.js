@@ -19,7 +19,7 @@ class Attractor {
 
     prepareVariables() {
         this.sizeX = this.$canvas.width();
-        this.sizeX -= $("form").width();
+        this.sizeX -= $('form').width();
         this.$canvas.width(this.sizeX);
         this.sizeY = this.$canvas.height();
         this.centerX = this.sizeX / 2;
@@ -32,12 +32,15 @@ class Attractor {
         this.examples = [];
         this.opacity = 0.05;
         this.randomColor = false;
+        this.animationModeTime = 0;
+        this.animationModeChangeTime = 2000;
         this.prepareCoordinates();
         this.prepareColors();
         this.prepareScale();
         this.prepareBeginningValues();
         this.prepareExamples();
         this.prepareCanvas();
+        this.prepareNeonColors();
     }
 
     prepareCoordinates() {
@@ -47,15 +50,15 @@ class Attractor {
 
     prepareColors() {
         this.color = 0xff0000;
-        this.backgroundColor = "#000000";
+        this.backgroundColor = '#000000';
     }
 
     prepareScale() {
-        console.log("Not implemented");
+        console.log('Not implemented');
     }
 
     prepareBeginningValues() {
-        console.log("Not implemented");
+        console.log('Not implemented');
     }
 
     setSliders() {
@@ -65,76 +68,86 @@ class Attractor {
     }
 
     prepareEvents() {
-        $("#speedInput").change($.proxy(function () {
-            this.speed = $("#speedInput").val();
+        $('#speedInput').change($.proxy(function () {
+            this.speed = $('#speedInput').val();
         }, this));
 
-        $("#colorInput").change($.proxy(function () {
-            let tmp = $("#colorInput").val();
-            tmp = tmp.replace("#", "");
+        $('#colorInput').change($.proxy(function () {
+            let tmp = $('#colorInput').val();
+            tmp = tmp.replace('#', '');
             tmp = parseInt(tmp, 16);
             this.color = tmp;
+            this.animationModeTime = 0;
         }, this));
 
-        $("#backgroundColorInput").change($.proxy(function () {
-            this.backgroundColor = $("#backgroundColorInput").val();
+        $('#backgroundColorInput').change($.proxy(function () {
+            this.backgroundColor = $('#backgroundColorInput').val();
             this.clearPixelsArray();
             this.ctx.fillStyle = this.backgroundColor;
             this.ctx.fillRect(0, 0, this.sizeX, this.sizeY);
+            this.animationModeTime = 0;
         }, this));
 
         for (let i = 0; i < this.valuesNames.length; ++i) {
             let valueName = this.valuesNames[i];
-            $("#" + valueName + "Input").bind('input', $.proxy(function () {
-                this.values[i] = $("#" + valueName + "Input").val();
-                $("#" + valueName + "Value").html(this.values[i]);
-                $("." + valueName + "Var").html(this.values[i]);
+            $('#' + valueName + 'Input').bind('input', $.proxy(function () {
+                this.values[i] = parseFloat($('#' + valueName + 'Input').val());
+                $('#' + valueName + 'Value').html(this.values[i]);
+                $('.' + valueName + 'Var').html(this.values[i]);
+                console.log(this.values[i]);
                 this.setBeginningCoordinates();
+                this.animationModeTime = 0;
             }, this));
         }
 
-        $("#opacityInput").bind('input', $.proxy(function () {
+        $('#opacityInput').bind('input', $.proxy(function () {
             this.opacity = $("#opacityInput").val();
             $("#opacityValue").html(this.opacity);
+            this.animationModeTime = 0;
         }, this));
 
-        $('#randomColorInput').change($.proxy(function(){
+        $('#randomColorInput').change($.proxy(function () {
             this.randomColor = !this.randomColor;
         }, this));
 
-        $("#clearButton").click($.proxy(function () {
+        $('#clearButton').click($.proxy(function () {
             this.clearPixelsArray();
             this.clearCanvas();
             this.setBeginningCoordinates();
+            this.animationModeTime = 0;
             return false;
         }, this));
 
-        $("#stopButton").click($.proxy(function () {
+        $('#stopButton').click($.proxy(function () {
             this.stop = !this.stop;
 
             if (this.stop) {
-                $("#stopButton").html("Start");
+                $('#stopButton').html('Start');
             } else {
-                $("#stopButton").html("Stop");
+                $('#stopButton').html('Stop');
             }
 
             return false;
         }, this));
 
-        $("#examples").change($.proxy(function () {
+        $('#examples').change($.proxy(function () {
             let selectedIndex = $('select[name=examples]').val();
             if (selectedIndex === -1) {
                 return;
             }
 
-            let selectedExample = this.examples[selectedIndex];
-            this.values = selectedExample.values;
-            this.opacity = selectedExample.opacity;
-
-            this.setSlidersValues();
-            this.setSlidersLabelsValues();
-            this.setFormulaVariables();
+            this.loadExample(selectedIndex);
+            this.animationModeTime = 0;
         }, this));
+    }
+
+    loadExample(index) {
+        let selectedExample = this.examples[index];
+        this.values = selectedExample.values;
+        this.opacity = selectedExample.opacity;
+        this.setSlidersValues();
+        this.setSlidersLabelsValues();
+        this.setFormulaVariables();
     }
 
     setBeginningCoordinates() {
@@ -144,22 +157,22 @@ class Attractor {
 
     setFormulaVariables() {
         for (let i = 0; i < this.valuesNames.length; ++i) {
-            $("." + this.valuesNames[i] + "Var").html(this.values[i]);
+            $('.' + this.valuesNames[i] + 'Var').html(this.values[i]);
         }
     }
 
     setSlidersLabelsValues() {
         for (let i = 0; i < this.valuesNames.length; ++i) {
-            $("#" + this.valuesNames[i] + "Value").html(this.values[i]);
+            $('#' + this.valuesNames[i] + 'Value').html(this.values[i]);
         }
-        $("#opacityValue").html(this.opacity);
+        $('#opacityValue').html(this.opacity);
     }
 
     setSlidersValues() {
         for (let i = 0; i < this.valuesNames.length; ++i) {
-            $("#" + this.valuesNames[i] + "Input").val(this.values[i]);
+            $('#' + this.valuesNames[i] + 'Input').val(this.values[i]);
         }
-        $("#opacityInput").val(this.opacity);
+        $('#opacityInput').val(this.opacity);
     }
 
     clearPixelsArray() {
@@ -175,27 +188,60 @@ class Attractor {
         this.canvas = document.getElementById(this.canvasId);
         this.canvas.width = this.sizeX;
         this.canvas.height = this.sizeY;
-        this.ctx = this.canvas.getContext("2d");
-        // // Assuming your canvas element is ctx
-        // this.ctx.shadowColor = 'yellow'; // string
-        // //Color of the shadow;  RGB, RGBA, HSL, HEX, and other inputs are valid.
-        // this.ctx.shadowOffsetX = 5; // integer
-        // //Horizontal distance of the shadow, in relation to the text.
-        // this.ctx.shadowOffsetY = 5; // integer
-        // //Vertical distance of the shadow, in relation to the text.
-        // this.ctx.shadowBlur = 10; // integer
-        // //Blurring effect to the shadow, the larger the value, the greater the blur.
-
+        this.ctx = this.canvas.getContext('2d');
         this.clearCanvas();
+    }
+
+    prepareNeonColors() {
+        this.neonColors = [0xFF355E, 0xFD5B78, 0xFF6037, 0xFF9966, 0xFF9933, 0xFFCC33, 0xFFFF66, 0xFFFF66, 0xCCFF00, 0x66FF66, 0xAAF0D1, 0x50BFE6, 0xFF6EFF, 0xEE34D2, 0xFF00CC, 0xFF00CC];
+        this.neonColorIndex = 0;
+    }
+
+    changeNeonColor() {
+        this.neonColorIndex += 1;
+        this.neonColorIndex %= this.neonColors.length;
+        this.color = this.neonColors[this.neonColorIndex];
     }
 
     clearCanvas() {
         this.ctx.fillStyle = this.backgroundColor;
         this.ctx.fillRect(0, 0, this.sizeX, this.sizeY);
+        this.image = this.ctx.getImageData(0, 0, this.sizeX, this.sizeY);
+    }
+
+    animationMode() {
+        this.animationModeTime += 1;
+        if (this.animationModeTime < this.animationModeChangeTime) {
+            return;
+        }
+
+        this.animationModeTime = 0;
+        this.color = this.neonColors[Math.round(Math.random() * this.neonColors.length)];
+        $('#colorInput').val(this.hex2str(this.color));
+        this.loadExample(Math.round(Math.random() * this.examples.length));
+        this.clearPixelsArray();
+        this.clearCanvas();
+        this.setBeginningCoordinates();
     }
 
     draw() {
         requestAnimationFrame(this.draw);
+    }
+
+    fillPixel(x, y, r, g, b, a) {
+        let index = (y * this.sizeX + x) * 4;
+        this.image.data[index] = r;
+        this.image.data[index + 1] = g;
+        this.image.data[index + 2] = b;
+        this.image.data[index + 3] = a;
+    }
+
+    hex2str(color) {
+        if (typeof color === 'number') {
+            color = '#' + ('00000' + (color | 0).toString(16)).substr(-6);
+        }
+
+        return color;
     }
 
     hex2rgb(hex) {
@@ -207,9 +253,9 @@ class Attractor {
     }
 
     sgn(a) {
-        if(a < 0) {
+        if (a < 0) {
             return -1;
-        } else if(a > 0) {
+        } else if (a > 0) {
             return 1;
         } else {
             return 0;
