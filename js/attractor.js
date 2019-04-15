@@ -33,7 +33,7 @@ class Attractor {
         this.opacity = 0.05;
         this.randomColor = false;
         this.animationModeTime = 0;
-        this.animationModeChangeTime = 2000;
+        this.animationModeChangeTime = 1000;
         this.prepareCoordinates();
         this.prepareColors();
         this.prepareScale();

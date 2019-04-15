@@ -26,6 +26,7 @@ class MartinsMapping extends Attractor {
             return;
         }
 
+        this.animationMode();
         let xn, yn;
         let color = Brushy.randomHexColor();
 

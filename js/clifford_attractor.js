@@ -20,6 +20,7 @@ class CliffordAttractor extends Attractor {
             return;
         }
 
+        this.animationMode();
         let xn, yn;
         for (let i = 0; i < this.speed; ++i) {
             xn = Math.sin(this.values[0] * this.y) + this.values[2] * Math.cos(this.values[0] * this.x);

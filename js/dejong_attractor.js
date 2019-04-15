@@ -20,6 +20,7 @@ class DejongAttractor extends Attractor {
             return;
         }
 
+        this.animationMode();
         let xn, yn;
         for (let i = 0; i < this.speed; ++i) {
             xn = Math.sin(this.values[0] * this.y) - Math.cos(this.values[1] * this.x);
