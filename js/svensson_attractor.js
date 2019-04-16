@@ -7,7 +7,7 @@ class SvenssonAttractor extends Attractor {
     }
 
     prepareBeginningValues() {
-        this.values = [1.40, 1.56, 1.40, -6.56];
+        this.values = [-2.538, 1.362, 1.315, 0.513];
     }
 
     prepareScale() {
@@ -55,11 +55,6 @@ class SvenssonAttractor extends Attractor {
         let n = 0;
         this.examples[n++] = {
             name: n,
-            values: [1.40, 1.56, 1.40, -6.56],
-            opacity: 0.05
-        };
-        this.examples[n++] = {
-            name: n,
             values: [-2.538, 1.362, 1.315, 0.513],
             opacity: 0.05
         };
@@ -77,6 +72,11 @@ class SvenssonAttractor extends Attractor {
             name: n,
             values: [-2.722, 2.574, 1.284, 1.043],
             opacity: 0.05
+        };
+        this.examples[n++] = {
+            name: n,
+            values: [1.40, 1.56, 1.40, -6.56],
+            opacity: 0.15
         };
     }
 }
