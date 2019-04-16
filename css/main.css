@@ -56,6 +56,39 @@
     background-size: auto 170%;
 }
 
+#symmetric_div {
+    background: url("../assets/symmetric_icon.png") no-repeat center;
+    background-size: auto 150%;
+    -webkit-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+#symmetric_div:hover {
+    background-size: auto 170%;
+}
+
+#bedhead_div {
+    background: url("../assets/bedhead.png") no-repeat center;
+    background-size: auto 150%;
+    -webkit-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+#bedhead_div:hover {
+    background-size: auto 170%;
+}
+
+#svensson_div {
+    background: url("../assets/svensson.png") no-repeat center;
+    background-size: auto 150%;
+    -webkit-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+#svensson_div:hover {
+    background-size: auto 170%;
+}
+
 form {
     width: 25vw;
     max-width: 400px;

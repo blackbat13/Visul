@@ -24,7 +24,8 @@ class Attractor {
         this.sizeY = this.$canvas.height();
         this.centerX = this.sizeX / 2;
         this.centerY = this.sizeY / 2;
-        this.speed = 1000;
+        this.speed = 2000;
+        $('#speedInput').val(this.speed);
         this.stop = false;
         this.pixels = [];
         this.percent = 5 / 100;
@@ -46,7 +47,8 @@ class Attractor {
 
     prepareColors() {
         this.color = 0xff0000;
-        this.backgroundColor = '#000000';
+        this.backgroundColor = '#ffffff';
+        $('#backgroundColorInput').val(this.backgroundColor);
     }
 
     prepareScale() {

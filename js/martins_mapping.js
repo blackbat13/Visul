@@ -15,11 +15,6 @@ class MartinsMapping extends Attractor {
         this.scale = 5;
     }
 
-    prepareColors() {
-        this.color = 0x00ff00;
-        this.backgroundColor = "#000000";
-    }
-
     draw() {
         requestAnimationFrame(this.draw.bind(this));
         if (this.stop) {
