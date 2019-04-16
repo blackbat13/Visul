@@ -14,6 +14,11 @@ class SvenssonAttractor extends Attractor {
         this.scale = this.sizeX / 6;
     }
 
+    setBeginningCoordinates() {
+        this.x = 0.1;
+        this.y = 0.1;
+    }
+
     draw() {
         requestAnimationFrame(this.draw.bind(this));
         if (this.stop) {

@@ -14,11 +14,6 @@ class SymmetricIconAttractor extends Attractor {
         this.scale = this.sizeX / 3;
     }
 
-    prepareCoordinates() {
-        this.x = 0.01;
-        this.y = 0.01;
-    }
-
     setBeginningCoordinates() {
         this.x = 0.01;
         this.y = 0.01;

@@ -34,7 +34,7 @@ class Attractor {
         this.randomColor = false;
         this.animationModeTime = 0;
         this.animationModeChangeTime = 1000;
-        this.prepareCoordinates();
+        this.setBeginningCoordinates();
         this.prepareColors();
         this.prepareScale();
         this.prepareBeginningValues();
@@ -42,11 +42,6 @@ class Attractor {
         this.populateExamples();
         this.prepareCanvas();
         this.prepareNeonColors();
-    }
-
-    prepareCoordinates() {
-        this.x = 0;
-        this.y = 0;
     }
 
     prepareColors() {
