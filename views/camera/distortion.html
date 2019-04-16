@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Video Distortion</title>
     <script>if (typeof module === 'object') {
         window.module = module;
         module = undefined;
@@ -27,10 +27,8 @@
             <option value="circles approx.">Circles approx.</option>
             <option value="rect approx.">Rect approx.</option>
             <option value="rgb">RGB</option>
+            <option value="wave">Wave</option>
         </select>
-    </div>
-    <div>
-        <a href="../graphs/index.html">Menu</a>
     </div>
 </form>
 </body>
@@ -56,6 +54,7 @@
     let height = 480;
     let maxDistance = 20;
     let data;
+    let angle = 0;
 
     $("#distanceInput").change(function () {
         maxDistance = parseInt($("#distanceInput").val());
@@ -65,16 +64,18 @@
         window.requestAnimationFrame(animate);
         context.drawImage(video, 0, 0, 640, 480);
         let selection = $('select[name=selection]').val();
-        if(selection === "circles") {
+        if (selection === "circles") {
             circles();
-        } else if(selection === "lines") {
+        } else if (selection === "lines") {
             lines();
-        } else if(selection === "circles approx.") {
+        } else if (selection === "circles approx.") {
             circleApprox();
-        } else if(selection === "rect approx.") {
+        } else if (selection === "rect approx.") {
             rectApprox();
-        } else if(selection === "rgb") {
+        } else if (selection === "rgb") {
             rgb();
+        } else if(selection === "wave") {
+            wave();
         }
     }
 
@@ -85,6 +86,48 @@
             pixel[k] = data[index + k];
         }
         return pixel;
+    }
+
+    // Converts from degrees to radians.
+    Math.radians = function (degrees) {
+        return degrees * Math.PI / 180;
+    };
+
+    // Converts from radians to degrees.
+    Math.degrees = function (radians) {
+        return radians * 180 / Math.PI;
+    };
+
+    function wave() {
+        let distance = 1;
+        let radius = maxDistance / 5;
+        let a = 1, b = 1;
+        let offset = distance * 10;
+        offset = 0;
+        data = context.getImageData(0, 0, width, height).data;
+        let image = context.getImageData(0, 0, width, height);
+        for (let cx = 0; cx < width; cx += distance) {
+            for (let cy = 0; cy < height; cy += distance) {
+                let x_distance = cx / distance;
+                let y_distance = cy / distance;
+                let n_angle = angle + 10 * x_distance + 10 * y_distance;
+                n_angle %= 360;
+                let x = cx + radius * a * Math.cos(Math.radians(n_angle));
+                let y = cy + radius * b * Math.sin(Math.radians(n_angle));
+                x = Math.round(x);
+                y = Math.round(y);
+
+                for (let k = 0; k < 3; ++k) {
+                    //image.data[((y * width) + x) * 4 + k] = data[((cy * width) + cx) * 4 + k];
+                    image.data[((cy * width) + cx) * 4 + k] = data[((y * width) + x) * 4 + k];
+                }
+            }
+        }
+
+        context.putImageData(image, 0, 0);
+
+        angle += 3;
+        angle %= 360;
     }
 
     function rgb() {
@@ -120,24 +163,24 @@
             for (let y = 0; y <= height; y += maxDistance) {
                 let sum = [0, 0, 0];
                 let count = 0;
-                for(let x2 = x; x2 <= x + maxDistance; x2 += 1) {
-                    for(let y2 = y; y2 <= y + maxDistance; y2 += 1) {
+                for (let x2 = x; x2 <= x + maxDistance; x2 += 1) {
+                    for (let y2 = y; y2 <= y + maxDistance; y2 += 1) {
                         let pixel = getPixel(x2, y2);
-                        for(let k = 0; k < 3; k++) {
+                        for (let k = 0; k < 3; k++) {
                             sum[k] += pixel[k];
                         }
                         count++;
                     }
                 }
 
-                for(let k = 0; k < 3; k++) {
+                for (let k = 0; k < 3; k++) {
                     sum[k] /= count;
                     sum[k] = Math.round(sum[k]);
                 }
 
                 context.fillStyle = "rgb(" + sum[0] + "," + sum[1] + "," + sum[2] + ")";
                 context.beginPath();
-                context.ellipse(x + maxDistance / 2, y + maxDistance / 2, Math.abs(maxDistance/2), Math.abs(maxDistance/2), 0, 0, 360);
+                context.ellipse(x + maxDistance / 2, y + maxDistance / 2, Math.abs(maxDistance / 2), Math.abs(maxDistance / 2), 0, 0, 360);
                 context.fill();
             }
         }
@@ -151,17 +194,17 @@
             for (let y = 0; y < height; y += maxDistance) {
                 let sum = [0, 0, 0];
                 let count = 0;
-                for(let x2 = x; x2 <= Math.min(x + maxDistance, width-1); x2 += 1) {
-                    for(let y2 = y; y2 <= Math.min(y + maxDistance, height-1); y2 += 1) {
+                for (let x2 = x; x2 <= Math.min(x + maxDistance, width - 1); x2 += 1) {
+                    for (let y2 = y; y2 <= Math.min(y + maxDistance, height - 1); y2 += 1) {
                         let pixel = getPixel(x2, y2);
-                        for(let k = 0; k < 3; k++) {
+                        for (let k = 0; k < 3; k++) {
                             sum[k] += pixel[k];
                         }
                         count++;
                     }
                 }
 
-                for(let k = 0; k < 3; k++) {
+                for (let k = 0; k < 3; k++) {
                     sum[k] /= count;
                     sum[k] = Math.round(sum[k]);
                 }
