@@ -10,6 +10,7 @@
     <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
     <script>if (window.module) module = window.module;</script>
     <link href="../../css/main.css" type="text/css" rel="stylesheet"/>
+    <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.min.css" type="text/css">
 </head>
 <body id="fractal_body">
 <canvas id="canvas"></canvas>
@@ -18,10 +19,10 @@
         <label for="speedInput">Speed</label>
         <input class="slider" type="range" min="1" max="50" id="speedInput" value="10"/>
     </div>
-    <div>
-        <label for="lengthInput">Length</label>
-        <input class="slider" type="range" min="1" max="100" id="lengthInput" value="15"/>
-    </div>
+<!--    <div>-->
+<!--        <label for="lengthInput">Length</label>-->
+<!--        <input class="slider" type="range" min="1" max="100" id="lengthInput" value="15"/>-->
+<!--    </div>-->
     <div>
         <label for="colorInput">Color</label>
         <input type="color" id="colorInput" value="#00ff00"/>
@@ -34,7 +35,7 @@
         <button id="clearButton">Clear</button>
     </div>
     <div>
-        <a href="../graphs/index.html">Menu</a>
+        <a class="btn btn-info" href="index.html">Menu</a>
     </div>
 </form>
 </body>
@@ -191,9 +192,9 @@
             let rgb = hex2rgb(color);
             ctx.fillStyle = color;
             ctx.strokeStyle = "rgba(" + rgb[0] * 255 + "," + rgb[1] * 255 + "," + rgb[2] * 255 + "," + opacity + ")";
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 5;
             ctx.beginPath();
-            let offset = 20;
+            let offset = 50;
 
             for (let i = 0; i < speed && dfsStack.length > 0 && !stop; ++i) {
                 let rnd;
