@@ -65,60 +65,96 @@ class SymmetricIconAttractor extends Attractor {
     }
 
     prepareExamples() {
-        this.examples[0] = {
-            name: "1",
+        let n = 0;
+        this.examples[n++] = {
+            name: n,
             values: [-2.5, 5, -1.9, 1, 0.188, 5],
             opacity: 0.05
         };
-        this.examples[1] = {
-            name: "2",
+        this.examples[n++] = {
+            name: n,
             values: [1.56, -1, 0.1, -0.82, 0.12, 3],
             opacity: 0.05
         };
-        this.examples[2] = {
-            name: "3",
+        this.examples[n++] = {
+            name: n,
             values: [-1.806, 1.806, 0, 1, 0, 5],
             opacity: 0.05
         };
-        this.examples[3] = {
-            name: "4",
+        this.examples[n++] = {
+            name: n,
             values: [-2.195, 10, -12, 1, 0, 3],
             opacity: 0.05
         };
-        this.examples[4] = {
-            name: "5",
+        this.examples[n++] = {
+            name: n,
             values: [2.5, -2.5, 0, 0.9, 0, 3],
             opacity: 0.05
         };
-        this.examples[5] = {
-            name: "6",
+        this.examples[n++] = {
+            name: n,
             values: [-2.05, 3, -16.79, 1, 0, 9],
             opacity: 0.05
         };
-        this.examples[6] = {
-            name: "7",
+        this.examples[n++] = {
+            name: n,
             values: [-2.7, 5, 1.5, 1, 0, 6],
             opacity: 0.05
         };
-        this.examples[7] = {
-            name: "8",
+        this.examples[n++] = {
+            name: n,
             values: [2.409, -2.5, 0, 0.9, 0, 23],
             opacity: 0.05
         };
-        this.examples[8] = {
-            name: "9",
+        this.examples[n++] = {
+            name: n,
             values: [-2.08, 1, -0.1, 0.167, 0, 7],
             opacity: 0.05
         };
-        this.examples[9] = {
-            name: "10",
+        this.examples[n++] = {
+            name: n,
             values: [-2.32, 2.32, 0, 0.75, 0, 5],
+            opacity: 0.05
+        };
+        this.examples[n++] = {
+            name: n,
+            values: [2.6, -2, 0, -0.5, 0, 5],
+            opacity: 0.05
+        };
+        this.examples[n++] = {
+            name: n,
+            values: [-2.34, 2, 0.2, 0.1, 0, 5],
+            opacity: 0.05
+        };
+        this.examples[n++] = {
+            name: n,
+            values: [-1.86, 2, 0, 1, 0.1, 4],
+            opacity: 0.05
+        };
+        this.examples[n++] = {
+            name: n,
+            values: [1.56, -1, 0.1, -0.82, 0, 3],
+            opacity: 0.05
+        };
+        this.examples[n++] = {
+            name: n,
+            values: [1.5, -1, 0.1, -0.805, 0, 3],
+            opacity: 0.05
+        };
+        this.examples[n++] = {
+            name: n,
+            values: [1.455, -1, 0.03, -0.8, 0, 3],
+            opacity: 0.05
+        };
+        this.examples[n++] = {
+            name: n,
+            values: [2.39, -2.5, -0.1, 0.9, -0.15, 16],
             opacity: 0.05
         };
 
 
         for (let i = 0; i < this.examples.length; ++i) {
-            $("#examples").append("<option value='" + i + "'>" + this.examples[i].name + "</option>");
+            $('#examples').append('<option value="' + i + '">' + this.examples[i].name + '</option>');
         }
     }
 }
