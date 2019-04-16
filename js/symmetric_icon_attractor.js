@@ -151,10 +151,5 @@ class SymmetricIconAttractor extends Attractor {
             values: [2.39, -2.5, -0.1, 0.9, -0.15, 16],
             opacity: 0.05
         };
-
-
-        for (let i = 0; i < this.examples.length; ++i) {
-            $('#examples').append('<option value="' + i + '">' + this.examples[i].name + '</option>');
-        }
     }
 }

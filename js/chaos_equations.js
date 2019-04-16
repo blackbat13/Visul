@@ -109,10 +109,5 @@ class ChaosEquations extends Attractor {
             values: [-2.0, -2.0, -0.7, -1.3],
             opacity: 0.05
         };
-
-
-        for (let i = 0; i < this.examples.length; ++i) {
-            $("#examples").append("<option value='" + i + "'>" + this.examples[i].name + "</option>");
-        }
     }
 }

@@ -3,7 +3,7 @@
  */
 class DejongAttractor extends Attractor {
     constructor(canvasId) {
-        super(canvasId, ["a", "b", "c", "d"]);
+        super(canvasId, ['a', 'b', 'c', 'd']);
     }
 
     prepareBeginningValues() {
@@ -39,7 +39,7 @@ class DejongAttractor extends Attractor {
             rgb[1] -= rgb[1] * val * this.percent > 0 ? rgb[1] * val * this.percent : 0;
             rgb[2] -= rgb[2] * val * this.percent > 0 ? rgb[2] * val * this.percent : 0;
 
-            this.ctx.fillStyle = "rgba(" + rgb[0] * 255 + "," + rgb[1] * 255 + "," + rgb[2] * 255 + "," + this.opacity + ")";
+            this.ctx.fillStyle = 'rgba(' + rgb[0] * 255 + ',' + rgb[1] * 255 + ',' + rgb[2] * 255 + ',' + this.opacity + ')';
             this.ctx.fillRect(cx, cy, 1, 1);
 
             this.pixels[cx][cy] = this.pixels[cx][cy] < 20 ? this.pixels[cx][cy] + 1 : 0;
@@ -47,30 +47,46 @@ class DejongAttractor extends Attractor {
     }
 
     prepareExamples() {
-        this.examples[0] = {
-            name: "1",
+        let n = 0;
+        this.examples[n++] = {
+            name: n,
             values: [-1.85, 1.48, -1.55, -1.87],
             opacity: 0.05
         };
-        this.examples[1] = {
-            name: "2",
+        this.examples[n++] = {
+            name: n,
+            values: [0.97, -1.899, 1.381, -1.506],
+            opacity: 0.05
+        };
+        this.examples[n++] = {
+            name: n,
             values: [1.4, -2.3, 2.4, -2.1],
             opacity: 0.05
         };
-        this.examples[2] = {
-            name: "3",
+        this.examples[n++] = {
+            name: n,
             values: [2.01, -2.53, 1.61, -0.33],
             opacity: 0.05
         };
-        this.examples[3] = {
-            name: "4",
+        this.examples[n++] = {
+            name: n,
+            values: [-2.7, -0.09, -0.86, -2.2],
+            opacity: 0.05
+        };
+        this.examples[n++] = {
+            name: n,
+            values: [-0.827, -1.637, 1.659, -0.943],
+            opacity: 0.05
+        };
+        this.examples[n++] = {
+            name: n,
             values: [-2.0, -2.0, -1.2, 2.0],
             opacity: 0.05
         };
-
-
-        for (let i = 0; i < this.examples.length; ++i) {
-            $("#examples").append("<option value='" + i + "'>" + this.examples[i].name + "</option>");
-        }
+        this.examples[n++] = {
+            name: n,
+            values: [-0.709, 1.638, 0.452, 1.74],
+            opacity: 0.05
+        };
     }
 }

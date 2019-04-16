@@ -39,6 +39,7 @@ class Attractor {
         this.prepareScale();
         this.prepareBeginningValues();
         this.prepareExamples();
+        this.populateExamples();
         this.prepareCanvas();
         this.prepareNeonColors();
     }
@@ -264,5 +265,11 @@ class Attractor {
 
     prepareExamples() {
         console.log('Not implemented');
+    }
+
+    populateExamples() {
+        for (let i = 0; i < this.examples.length; ++i) {
+            $('#examples').append('<option value="' + i + '">' + this.examples[i].name + '</option>');
+        }
     }
 }

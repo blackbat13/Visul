@@ -156,10 +156,5 @@ class MartinsMapping extends Attractor {
             values: [-2.372,0.901,1.518,1.812,1],
             opacity: 0.05
         };
-
-
-        for (let i = 0; i < this.examples.length; ++i) {
-            $("#examples").append("<option value='" + i + "'>" + this.examples[i].name + "</option>");
-        }
     }
 }
