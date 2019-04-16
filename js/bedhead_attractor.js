@@ -11,7 +11,7 @@ class BedheadAttractor extends Attractor {
     }
 
     prepareScale() {
-        this.scale = this.sizeX / 8;
+        this.scale = this.sizeX / 6;
     }
 
     draw() {
@@ -24,7 +24,7 @@ class BedheadAttractor extends Attractor {
         let xn, yn;
         for (let i = 0; i < this.speed; ++i) {
             xn = Math.sin(this.y * this.x / this.values[1]) * this.y + Math.cos(this.values[0] * this.x - this.y);
-            yn = this.x + Math.sin(this.y / this.values[1]);
+            yn = this.x + Math.sin(this.y) / this.values[1];
             this.x = xn;
             this.y = yn;
             let cx = Math.round(this.centerX + this.x * this.scale),
@@ -70,7 +70,7 @@ class BedheadAttractor extends Attractor {
         };
         this.examples[n++] = {
             name: n,
-            values: [-0.67, 0.53],
+            values: [-0.67, 0.83],
             opacity: 0.05
         };
     }
