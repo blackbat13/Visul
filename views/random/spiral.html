@@ -10,35 +10,13 @@
     <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
     <script>if (window.module) module = window.module;</script>
     <link href="../../css/main.css" type="text/css" rel="stylesheet"/>
+    <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.min.css" type="text/css">
 </head>
 <body id="fractal_body">
 <canvas id="canvas"></canvas>
 <form>
     <div>
-        <label for="speedInput">Speed</label>
-        <input class="slider" type="range" min="2" max="100" id="speedInput" value="10"/>
-    </div>
-    <div>
-        <label for="lengthInput">Length</label>
-        <input class="slider" type="range" min="4" max="100" id="lengthInput" value="10"/>
-    </div>
-    <div>
-        <label for="colorInput">Color</label>
-        <input type="color" id="colorInput" value="#ffffff"/>
-    </div>
-    <div>
-        <label for="opacityInput">Intensity: <span id="opacityValue">1</span></label>
-        <input class="slider" type="range" min="0.01" max="1" id="opacityInput" value="1" step="0.01"/>
-    </div>
-    <div>
-        <label for="changeColorInput">Change color</label>
-        <input type="checkbox" id="changeColorInput"/>
-    </div>
-    <div>
-        <button id="clearButton">Clear</button>
-    </div>
-    <div>
-        <a href="index.html">Menu</a>
+        <a class="btn btn-info" href="index.html">Menu</a>
     </div>
 </form>
 </body>
